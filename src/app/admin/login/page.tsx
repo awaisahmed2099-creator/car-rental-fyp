@@ -15,13 +15,6 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { adminUser, isLoading: authLoading } = useAdminAuth();
 
-  // ✅ Instant redirect when adminUser is set
-  useEffect(() => {
-    if (!authLoading && adminUser) {
-      router.replace('/admin/dashboard');
-    }
-  }, [adminUser, authLoading, router]);
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -54,6 +47,19 @@ export default function AdminLoginPage() {
         <h1 className="text-2xl font-bold text-white mb-6 text-center">
           Drive<span className="text-orange-500">Ease</span> Admin
         </h1>
+
+        {/* Show message if already logged in */}
+        {adminUser && !authLoading && (
+          <div className="mb-4 p-4 bg-orange-500/20 border border-orange-500 rounded text-orange-400 text-sm">
+            <p className="mb-3">You are already logged in as <strong>{adminUser.email}</strong>.</p>
+            <button
+              onClick={() => router.push('/admin/dashboard')}
+              className="w-full bg-orange-500 hover:bg-orange-600 p-2 rounded text-white font-medium transition-colors"
+            >
+              Go to Dashboard
+            </button>
+          </div>
+        )}
 
         {errorMessage && (
           <div className="mb-4 text-red-400 text-sm">{errorMessage}</div>

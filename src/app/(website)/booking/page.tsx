@@ -107,7 +107,7 @@ function BookingContent() {
           const pkgSnap = await getDoc(pkgRef);
           if (pkgSnap.exists()) {
             const data = pkgSnap.data();
-            setPackage({
+            const pkg: Package = {
               packageId: pkgSnap.id,
               name: data.name || '',
               description: data.description || '',
@@ -120,9 +120,43 @@ function BookingContent() {
               popular: data.popular || false,
               available: data.available || false,
               createdAt: data.createdAt?.toDate?.() || new Date(),
-            } as Package);
+            };
+            setPackage(pkg);
+            
             if (data.discount) {
               setDiscount(data.discount);
+            }
+
+            // Auto-select first car from package if no specific car was selected
+            if (!carId && pkg.cars && pkg.cars.length > 0) {
+              try {
+                const firstCarId = pkg.cars[0].carId;
+                if (!firstCarId) return;
+                const carRef = doc(db, COLLECTIONS.CARS, firstCarId);
+                const carSnap = await getDoc(carRef);
+                if (carSnap.exists()) {
+                  const carData = carSnap.data();
+                  setCar({
+                    carId: carSnap.id,
+                    name: carData.name || '',
+                    brand: carData.brand || '',
+                    model: carData.model || '',
+                    year: carData.year || 0,
+                    price: carData.price || 0,
+                    images: carData.images || [],
+                    category: carData.category || 'sedan',
+                    seats: carData.seats || 5,
+                    transmission: carData.transmission || 'automatic',
+                    fuel: carData.fuel || 'petrol',
+                    features: carData.features || [],
+                    available: carData.available || false,
+                    description: carData.description || '',
+                    createdAt: carData.createdAt?.toDate?.() || new Date(),
+                  } as Car);
+                }
+              } catch (err) {
+                console.error('Error loading first car from package:', err);
+              }
             }
           }
         }
@@ -277,12 +311,14 @@ function BookingContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Booking information not found.</p>
+          <p className="text-gray-600 mb-4">
+            {!car && !package_ ? 'Vehicle not found.' : 'Booking information not found.'}
+          </p>
           <button
-            onClick={() => router.push('/cars')}
+            onClick={() => router.push('/packages')}
             className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg"
           >
-            Back to Cars
+            Back to Packages
           </button>
         </div>
       </div>

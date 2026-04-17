@@ -16,16 +16,23 @@ export interface Car {
   createdAt: Date;
 }
 
+export interface PackageCar {
+  carId?: string; // Optional - only if selected from fleet
+  carName: string; // Display name (e.g., "Prado", "Civic")
+  quantity: number; // How many of this type (e.g., 8)
+  image: string; // Image URL for this car type
+}
+
 export interface Package {
   packageId: string;
   name: string;
   description: string;
-  cars: string[]; // carIds included
+  cars: PackageCar[]; // Array of car types with quantities
   duration: string;
   pricePerDay: number;
   discount: number; // percentage
   features: string[];
-  image: string;
+  image: string; // Package thumbnail image (from first car)
   popular: boolean;
   available: boolean;
   createdAt: Date;

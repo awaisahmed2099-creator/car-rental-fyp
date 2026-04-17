@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { Check } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { Package } from '@/types';
 
@@ -11,28 +11,93 @@ interface PackageCardProps {
 }
 
 export default function PackageCard({ pkg }: PackageCardProps) {
+  const [imageIndex, setImageIndex] = useState(0);
+
   const discountedPrice = pkg.discount 
     ? Math.round(pkg.pricePerDay * (1 - pkg.discount / 100))
     : pkg.pricePerDay;
 
-  // Validate package image
-  const packageImage = (pkg.image && typeof pkg.image === 'string' && pkg.image.trim().length > 0)
-    ? pkg.image
-    : 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop';
+  // Get current car image based on carousel index
+  const currentCarImage = pkg.cars && pkg.cars.length > 0 
+    ? pkg.cars[imageIndex]?.image 
+    : pkg.image;
+
+  // Validate package image - use first car image
+  const packageImage = currentCarImage || 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop';
+
+  // Generate composition summary (e.g., "8 Prados & 2 Civics")
+  const getCompositionSummary = () => {
+    if (!pkg.cars || pkg.cars.length === 0) return '';
+    return pkg.cars
+      .map((car) => `${car.quantity} ${car.carName}${car.quantity > 1 ? 's' : ''}`)
+      .join(' & ');
+  };
+
+  // Calculate total vehicles
+  const totalVehicles = pkg.cars?.reduce((sum, car) => sum + car.quantity, 0) || 0;
+
+  const handlePrevImage = () => {
+    if (!pkg.cars || pkg.cars.length === 0) return;
+    setImageIndex((prev) => (prev === 0 ? pkg.cars.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    if (!pkg.cars || pkg.cars.length === 0) return;
+    setImageIndex((prev) => (prev === pkg.cars.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full">
-      {/* Image */}
+      {/* Image Carousel */}
       <div className="relative aspect-video bg-gray-200 overflow-hidden">
-        <Image
+        <img
           src={packageImage}
           alt={pkg.name}
-          fill
-          className="object-cover hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop';
+          }}
         />
+
+        {/* Popular Badge */}
         {pkg.popular && (
           <div className="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">
             Popular
+          </div>
+        )}
+
+        {/* Navigation Buttons (only show if more than 1 car) */}
+        {pkg.cars && pkg.cars.length > 1 && (
+          <>
+            <button
+              onClick={handlePrevImage}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </>
+        )}
+
+        {/* Car Info and Counter at Bottom */}
+        {pkg.cars && pkg.cars.length > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black to-transparent p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-white">
+                <p className="font-semibold">{pkg.cars[imageIndex]?.carName}</p>
+                <p className="text-sm text-gray-300">Quantity: {pkg.cars[imageIndex]?.quantity}</p>
+              </div>
+              {pkg.cars.length > 1 && (
+                <div className="bg-black bg-opacity-60 text-white px-3 py-1 rounded text-xs font-medium">
+                  {imageIndex + 1} / {pkg.cars.length}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -69,10 +134,16 @@ export default function PackageCard({ pkg }: PackageCardProps) {
           )}
         </div>
 
-        {/* Included Cars Count */}
-        <p className="text-sm text-gray-600 mb-4 font-medium">
-          {pkg.cars.length} car{pkg.cars.length !== 1 ? 's' : ''} included
-        </p>
+        {/* Included Cars Composition */}
+        {pkg.cars && pkg.cars.length > 0 ? (
+          <div className="text-sm text-gray-700 mb-4 font-medium bg-orange-50 p-2 rounded">
+            <span className="text-orange-600 font-semibold">{totalVehicles} Vehicle{totalVehicles !== 1 ? 's' : ''}:</span> {getCompositionSummary()}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 mb-4 font-medium">
+            No cars included
+          </p>
+        )}
 
         {/* Price */}
         <div className="mb-4 pb-4 border-b border-gray-200">

@@ -16,54 +16,38 @@ interface AdminAuthContextType {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
-  // Initialize loading state based on localStorage to prevent showing verification screen
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    const alreadyInitialized = localStorage.getItem('__driveease_auth_initialized__') === 'true';
-    return !alreadyInitialized; // If NOT initialized, show loading; if already initialized, don't show
-  });
-
+  const [isLoading, setIsLoading] = useState(true);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
-    const sessionInitKey = '__driveease_auth_initialized__';
-
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      if (user) {
-        try {
+      try {
+        if (user) {
           const adminDocRef = doc(db, COLLECTIONS.ADMINS, user.uid);
           const adminDoc = await getDoc(adminDocRef);
 
           if (adminDoc.exists()) {
             setAdminUser(adminDoc.data() as AdminUser);
           } else {
-            // ❗ NOT ADMIN → SIGN OUT
+            // Not an admin - sign out
             await signOut(auth);
             setAdminUser(null);
-            alert('Access denied: Not an admin');
           }
-        } catch (error) {
-          console.error(error);
+        } else {
           setAdminUser(null);
         }
-      } else {
+      } catch (error) {
+        console.error('Auth error:', error);
         setAdminUser(null);
+      } finally {
+        setIsLoading(false);
       }
-
-      // Mark initialization complete and stop showing loading screen
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(sessionInitKey, 'true');
-      }
-      setIsLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
   const logout = async () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('__driveease_auth_initialized__');
-    }
     await signOut(auth);
     setAdminUser(null);
   };
