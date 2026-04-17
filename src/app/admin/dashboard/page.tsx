@@ -8,6 +8,7 @@ import { Car, Package, Booking } from '@/types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Car as CarIcon, Package as PackageIcon, CalendarCheck, TrendingUp, Clock, DollarSign, AlertCircle } from 'lucide-react';
 import { format, startOfDay, endOfDay, startOfMonth, endOfMonth, subDays } from 'date-fns';
+import AdminHeader from '@/components/admin/AdminHeader';
 
 interface StatCard {
   title: string;
@@ -307,11 +308,54 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">{formattedDate}</p>
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader title="Dashboard" />
+      <div className="p-8">
+        {/* Header Info */}
+
+      {/* Quick Stats Row - MOVED TO TOP */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Today's Bookings</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{quickStats.bookingsToday}</p>
+            </div>
+            <CalendarCheck className="w-10 h-10 text-blue-500 opacity-50" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">This Week Revenue</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">PKR {(quickStats.weekRevenue / 1000).toFixed(0)}k</p>
+            </div>
+            <DollarSign className="w-10 h-10 text-green-500 opacity-50" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Pending Payments</p>
+              <p className={`text-3xl font-bold mt-2 ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-slate-900'}`}>
+                {quickStats.pendingPayments}
+              </p>
+            </div>
+            <Clock className={`w-10 h-10 ${quickStats.pendingPayments > 0 ? 'text-orange-500' : 'text-gray-400'} opacity-50`} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-600 text-sm font-medium">Cancelled This Month</p>
+              <p className="text-3xl font-bold text-slate-900 mt-2">{quickStats.cancelledThisMonth}</p>
+            </div>
+            <AlertCircle className="w-10 h-10 text-red-500 opacity-50" />
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards Row */}
@@ -409,51 +453,7 @@ export default function DashboardPage() {
           </BarChart>
         </ResponsiveContainer>
       </div>
-
-      {/* Quick Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Today's Bookings</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{quickStats.bookingsToday}</p>
-            </div>
-            <CalendarCheck className="w-10 h-10 text-blue-500 opacity-50" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">This Week Revenue</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">PKR {(quickStats.weekRevenue / 1000).toFixed(0)}k</p>
-            </div>
-            <DollarSign className="w-10 h-10 text-green-500 opacity-50" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Pending Payments</p>
-              <p className={`text-3xl font-bold mt-2 ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-slate-900'}`}>
-                {quickStats.pendingPayments}
-              </p>
-            </div>
-            <Clock className={`w-10 h-10 ${quickStats.pendingPayments > 0 ? 'text-orange-500' : 'text-gray-400'} opacity-50`} />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Cancelled This Month</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{quickStats.cancelledThisMonth}</p>
-            </div>
-            <AlertCircle className="w-10 h-10 text-red-500 opacity-50" />
-          </div>
-        </div>
-      </div>
+    </div>
     </div>
   );
 }

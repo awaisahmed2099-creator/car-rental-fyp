@@ -7,6 +7,7 @@ import { COLLECTIONS } from '@/lib/collections';
 import { Car } from '@/types';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, AlertCircle } from 'lucide-react';
+import AdminHeader from '@/components/admin/AdminHeader';
 import AddCarModal from '@/components/admin/AddCarModal';
 import EditCarModal from '@/components/admin/EditCarModal';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
@@ -109,21 +110,19 @@ export default function CarsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-slate-900">Cars Management</h1>
-          <p className="text-gray-600 mt-2">Manage your vehicle inventory</p>
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader title="Cars Management" />
+      <div className="p-8">
+        {/* Add Car Button */}
+        <div className="mb-8 flex justify-end">
+          <button
+            onClick={handleAddCar}
+            className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors shadow-sm"
+          >
+            <Plus size={20} />
+            Add Car
+          </button>
         </div>
-        <button
-          onClick={handleAddCar}
-          className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors shadow-sm"
-        >
-          <Plus size={20} />
-          Add Car
-        </button>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -277,6 +276,7 @@ export default function CarsPage() {
         cancelText="Cancel"
         isDangerous={true}
       />
+    </div>
     </div>
   );
 }

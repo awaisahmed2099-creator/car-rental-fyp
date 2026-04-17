@@ -11,9 +11,17 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [justSignedIn, setJustSignedIn] = useState(false);
 
   const router = useRouter();
   const { adminUser, isLoading: authLoading } = useAdminAuth();
+
+  // Only redirect after successful sign in
+  useEffect(() => {
+    if (justSignedIn && adminUser && !authLoading) {
+      router.push('/admin/dashboard');
+    }
+  }, [justSignedIn, adminUser, authLoading, router]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +34,7 @@ export default function AdminLoginPage() {
         email.trim(),
         password.trim()
       );
-      // ❗ No manual redirect here — context will handle it
+      setJustSignedIn(true);
     } catch (error: any) {
       let message = 'Invalid email or password';
 
@@ -47,19 +55,6 @@ export default function AdminLoginPage() {
         <h1 className="text-2xl font-bold text-white mb-6 text-center">
           Drive<span className="text-orange-500">Ease</span> Admin
         </h1>
-
-        {/* Show message if already logged in */}
-        {adminUser && !authLoading && (
-          <div className="mb-4 p-4 bg-orange-500/20 border border-orange-500 rounded text-orange-400 text-sm">
-            <p className="mb-3">You are already logged in as <strong>{adminUser.email}</strong>.</p>
-            <button
-              onClick={() => router.push('/admin/dashboard')}
-              className="w-full bg-orange-500 hover:bg-orange-600 p-2 rounded text-white font-medium transition-colors"
-            >
-              Go to Dashboard
-            </button>
-          </div>
-        )}
 
         {errorMessage && (
           <div className="mb-4 text-red-400 text-sm">{errorMessage}</div>
