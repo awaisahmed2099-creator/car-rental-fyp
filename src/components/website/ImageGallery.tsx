@@ -41,6 +41,7 @@ export default function ImageGallery({ images, alt }: ImageGalleryProps) {
           src={currentImage}
           alt={alt}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 700px"
           className="object-cover"
           priority
         />
@@ -81,6 +82,7 @@ export default function ImageGallery({ images, alt }: ImageGalleryProps) {
                 src={image}
                 alt={`${alt} thumbnail ${index + 1}`}
                 fill
+                sizes="80px"
                 className="object-cover"
               />
             </button>

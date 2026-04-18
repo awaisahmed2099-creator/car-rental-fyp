@@ -318,7 +318,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="e.g., Civic"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 shadow-sm"
                   />
                 </div>
                 <div>
@@ -329,7 +329,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     value={formData.brand}
                     onChange={handleInputChange}
                     placeholder="e.g., Honda"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 shadow-sm"
                   />
                 </div>
               </div>
@@ -343,7 +343,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     value={formData.model}
                     onChange={handleInputChange}
                     placeholder="e.g., 2024"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900"
                   />
                 </div>
                 <div>
@@ -355,7 +355,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     onChange={handleInputChange}
                     min="2000"
                     max="2026"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900"
                   />
                 </div>
               </div>
@@ -367,7 +367,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 bg-white shadow-sm"
                   >
                     <option value="sedan">Sedan</option>
                     <option value="suv">SUV</option>
@@ -384,7 +384,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     value={formData.seats}
                     onChange={handleInputChange}
                     min="1"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 shadow-sm"
                   />
                 </div>
                 <div>
@@ -393,7 +393,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     name="transmission"
                     value={formData.transmission}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 bg-white shadow-sm"
                   >
                     <option value="automatic">Automatic</option>
                     <option value="manual">Manual</option>
@@ -408,7 +408,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     name="fuel"
                     value={formData.fuel}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 bg-white shadow-sm"
                   >
                     <option value="petrol">Petrol</option>
                     <option value="diesel">Diesel</option>
@@ -423,7 +423,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                     value={formData.pricePerDay}
                     onChange={handleInputChange}
                     placeholder="5000"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 shadow-sm"
                   />
                 </div>
               </div>
@@ -512,7 +512,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                   onChange={handleInputChange}
                   placeholder="Enter car description"
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none text-slate-900 shadow-sm"
                 />
               </div>
 
@@ -530,7 +530,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
                       }
                     }}
                     placeholder="Enter feature"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900 shadow-sm"
                   />
                   <button
                     onClick={addFeature}
@@ -588,7 +588,7 @@ export default function AddCarModal({ onClose }: AddCarModalProps) {
           <button
             onClick={() => setStep(Math.max(1, step - 1))}
             disabled={step === 1 || loading}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all"
+            className="px-4 py-2 text-slate-700 bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:text-gray-400 disabled:cursor-not-allowed font-medium transition-all shadow-sm"
           >
             Previous
           </button>

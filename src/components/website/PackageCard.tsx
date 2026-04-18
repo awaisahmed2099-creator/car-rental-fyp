@@ -50,13 +50,12 @@ export default function PackageCard({ pkg }: PackageCardProps) {
     <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col h-full">
       {/* Image Carousel */}
       <div className="relative aspect-video bg-gray-200 overflow-hidden">
-        <img
+        <Image
           src={packageImage}
           alt={pkg.name}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            e.currentTarget.src = 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&h=300&fit=crop';
-          }}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover hover:scale-105 transition-transform duration-300"
         />
 
         {/* Popular Badge */}

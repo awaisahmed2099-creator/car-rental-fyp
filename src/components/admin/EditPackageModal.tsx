@@ -282,7 +282,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
                 />
               </div>
 
@@ -293,7 +293,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none text-slate-900 shadow-sm"
                 />
               </div>
 
@@ -305,7 +305,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                     name="pricePerDay"
                     value={formData.pricePerDay}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
                   />
                 </div>
               </div>
@@ -320,7 +320,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                     onChange={handleInputChange}
                     min="0"
                     max="100"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
                   />
                 </div>
                 <div className="flex items-end gap-2">
@@ -356,7 +356,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                         onChange={(e) => {
                           setSelectedFleetCar(e.target.value);
                         }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 bg-white shadow-sm"
                       >
                         <option value="">Choose a car...</option>
                         {cars.map((car) => (
@@ -376,7 +376,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                         onChange={(e) => setCarQuantityInput(e.target.value)}
                         min="1"
                         placeholder="1"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
                       />
                     </div>
                   </div>
@@ -476,7 +476,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                   onChange={(e) => setFeatureInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
                   placeholder="Add a feature..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
                 />
                 <button
                   onClick={addFeature}
@@ -520,7 +520,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
           <button
             onClick={() => setStep(Math.max(1, step - 1))}
             disabled={step === 1 || loading}
-            className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-slate-700 bg-gray-200 hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:text-gray-400 disabled:cursor-not-allowed shadow-sm"
           >
             Previous
           </button>

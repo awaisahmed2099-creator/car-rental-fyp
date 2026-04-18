@@ -106,7 +106,7 @@ export default function CustomerDetailsForm({
           placeholder="Enter your full name"
           className={`w-full px-4 py-2 rounded-lg border ${
             errors.customerName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-          } focus:outline-none focus:ring-2 focus:ring-orange-500`}
+          } focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900`}
         />
         {errors.customerName && (
           <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
@@ -129,7 +129,7 @@ export default function CustomerDetailsForm({
           placeholder="03001234567"
           className={`w-full px-4 py-2 rounded-lg border ${
             errors.customerPhone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-          } focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono`}
+          } focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono text-slate-900`}
         />
         {errors.customerPhone && (
           <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
@@ -150,7 +150,7 @@ export default function CustomerDetailsForm({
           value={formData.customerEmail}
           onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
           placeholder="your.email@example.com"
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900"
         />
       </div>
 
@@ -175,7 +175,7 @@ export default function CustomerDetailsForm({
             placeholder="Enter or select pickup location"
             className={`w-full px-4 py-2 rounded-lg border ${
               errors.pickupLocation ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-            } focus:outline-none focus:ring-2 focus:ring-orange-500`}
+            } focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900`}
           />
           {showPickupSuggestions && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
@@ -221,7 +221,7 @@ export default function CustomerDetailsForm({
             placeholder="Enter or select drop-off location"
             className={`w-full px-4 py-2 rounded-lg border ${
               errors.dropoffLocation ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-            } focus:outline-none focus:ring-2 focus:ring-orange-500`}
+            } focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900`}
           />
           {showDropoffSuggestions && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
@@ -257,7 +257,7 @@ export default function CustomerDetailsForm({
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           placeholder="Any special requirements or additional notes?"
           rows={4}
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none text-slate-900"
         />
       </div>
 
@@ -265,7 +265,7 @@ export default function CustomerDetailsForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+        className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
       >
         Continue to Payment
         <ChevronRight size={20} />

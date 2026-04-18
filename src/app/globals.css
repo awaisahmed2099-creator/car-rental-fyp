@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Global Form Accessibility Improvements */
+input, select, textarea {
+  color: #0f172a; /* Slate 900 - high contrast dark text */
+}
+
+input::placeholder, textarea::placeholder {
+  color: #64748b; /* Slate 500 - visible but secondary */
+  opacity: 1; /* Firefox fix */
+}
+
+/* Ensure date picker inputs are always visible */
+input[type="date"] {
+  color: #0f172a;
+}
+
+/* Base button disabled state contrast */
+button:disabled {
+  cursor: not-allowed;
+}
