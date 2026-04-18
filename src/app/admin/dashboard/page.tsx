@@ -313,68 +313,102 @@ export default function DashboardPage() {
       <div className="p-8">
         {/* Header Info */}
 
-      {/* Quick Stats Row - MOVED TO TOP */}
+      {/* Stats Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Today's Bookings</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{quickStats.bookingsToday}</p>
-            </div>
-            <CalendarCheck className="w-10 h-10 text-blue-500 opacity-50" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-orange-50 to-transparent rounded-full flex items-center justify-center">
+            <CarIcon className="w-8 h-8 text-orange-500" />
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">Total Cars</p>
+            <p className="text-4xl font-bold text-slate-900 mb-2">{stats.totalCars}</p>
+            <p className="text-sm text-green-600 font-medium">{stats.availableCars} available</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">This Week Revenue</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">PKR {(quickStats.weekRevenue / 1000).toFixed(0)}k</p>
-            </div>
-            <DollarSign className="w-10 h-10 text-green-500 opacity-50" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-50 to-transparent rounded-full flex items-center justify-center">
+            <PackageIcon className="w-8 h-8 text-blue-500" />
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">Total Packages</p>
+            <p className="text-4xl font-bold text-slate-900 mb-2">{stats.totalPackages}</p>
+            <p className="text-sm text-green-600 font-medium">{stats.activePackages} active</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Pending Payments</p>
-              <p className={`text-3xl font-bold mt-2 ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-slate-900'}`}>
-                {quickStats.pendingPayments}
-              </p>
-            </div>
-            <Clock className={`w-10 h-10 ${quickStats.pendingPayments > 0 ? 'text-orange-500' : 'text-gray-400'} opacity-50`} />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-purple-50 to-transparent rounded-full flex items-center justify-center">
+            <CalendarCheck className="w-8 h-8 text-purple-500" />
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">Total Bookings</p>
+            <p className="text-4xl font-bold text-slate-900 mb-2">{stats.totalBookings}</p>
+            <p className="text-sm text-green-600 font-medium">{stats.bookingsToday} today</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm font-medium">Cancelled This Month</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">{quickStats.cancelledThisMonth}</p>
-            </div>
-            <AlertCircle className="w-10 h-10 text-red-500 opacity-50" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-green-50 to-transparent rounded-full flex items-center justify-center">
+            <TrendingUp className="w-8 h-8 text-green-500" />
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">Revenue This Month</p>
+            <p className="text-4xl font-bold text-slate-900 mb-2">PKR {stats.revenueThisMonth.toLocaleString()}</p>
+            <p className="text-sm text-green-600 font-medium">Paid bookings</p>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards Row */}
+      {/* Quick Stats Row - Enhanced with larger cards and hover effects */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {statCards.map((card, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative"
-          >
-            <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-orange-50 to-transparent rounded-full flex items-center justify-center">
-              {card.icon}
-            </div>
-            <div>
-              <p className="text-gray-600 text-sm font-medium mb-2">{card.title}</p>
-              <p className="text-4xl font-bold text-slate-900 mb-2">{card.value}</p>
-              <p className="text-sm text-green-600 font-medium">{card.subtext}</p>
-            </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-50 to-transparent rounded-full flex items-center justify-center">
+            <CalendarCheck className="w-8 h-8 text-blue-500" />
           </div>
-        ))}
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">Today's Bookings</p>
+            <p className="text-4xl font-bold text-slate-900 mb-2">{quickStats.bookingsToday}</p>
+            <p className="text-sm text-blue-600 font-medium">Active bookings</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-green-50 to-transparent rounded-full flex items-center justify-center">
+            <DollarSign className="w-8 h-8 text-green-500" />
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">This Week Revenue</p>
+            <p className="text-4xl font-bold text-slate-900 mb-2">PKR {(quickStats.weekRevenue / 1000).toFixed(0)}k</p>
+            <p className="text-sm text-green-600 font-medium">Week total</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-orange-50 to-transparent rounded-full flex items-center justify-center">
+            <Clock className={`w-8 h-8 ${quickStats.pendingPayments > 0 ? 'text-orange-500' : 'text-gray-400'}`} />
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">Pending Payments</p>
+            <p className={`text-4xl font-bold mb-2 ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-slate-900'}`}>
+              {quickStats.pendingPayments}
+            </p>
+            <p className={`text-sm font-medium ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+              {quickStats.pendingPayments > 0 ? 'Awaiting payment' : 'All paid'}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
+          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-red-50 to-transparent rounded-full flex items-center justify-center">
+            <AlertCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm font-medium mb-2">Cancelled This Month</p>
+            <p className="text-4xl font-bold text-slate-900 mb-2">{quickStats.cancelledThisMonth}</p>
+            <p className="text-sm text-red-600 font-medium">Month total</p>
+          </div>
+        </div>
       </div>
 
       {/* Recent Bookings Table */}

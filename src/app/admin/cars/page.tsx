@@ -6,13 +6,146 @@ import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/collections';
 import { Car } from '@/types';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AddCarModal from '@/components/admin/AddCarModal';
 import EditCarModal from '@/components/admin/EditCarModal';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 const CATEGORIES = ['All', 'Sedan', 'SUV', 'Luxury', 'Van', 'Coaster'];
+
+// Car Card Component with Image Carousel
+function CarCard({ car, onEdit, onDelete, onToggleAvailability }: { car: Car; onEdit: (car: Car) => void; onDelete: (car: Car) => void; onToggleAvailability: (car: Car) => void }) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const totalImages = car.images?.length || 0;
+  const currentImage = totalImages > 0 ? car.images[currentImageIndex] : null;
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? totalImages - 1 : prev - 1));
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === totalImages - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
+      {/* Car Image with Navigation */}
+      <div className="relative w-full h-48 bg-gray-200 overflow-hidden group">
+        {currentImage ? (
+          <img 
+            src={currentImage} 
+            alt={car.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-300">
+            <span className="text-gray-500">No image</span>
+          </div>
+        )}
+
+        {/* Previous Button */}
+        {totalImages > 1 && (
+          <button
+            onClick={handlePrevImage}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          >
+            <ChevronLeft size={20} />
+          </button>
+        )}
+
+        {/* Next Button */}
+        {totalImages > 1 && (
+          <button
+            onClick={handleNextImage}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          >
+            <ChevronRight size={20} />
+          </button>
+        )}
+
+        {/* Image Counter */}
+        {totalImages > 1 && (
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-xs font-medium">
+            {currentImageIndex + 1} / {totalImages}
+          </div>
+        )}
+
+        {/* Category Badge */}
+        <div className="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold capitalize">
+          {car.category}
+        </div>
+      </div>
+
+      {/* Car Details */}
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-slate-900 mb-1">
+          {car.brand} {car.name}
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">{car.model} • {car.year}</p>
+
+        {/* Price */}
+        <div className="mb-4 pb-4 border-b border-gray-100">
+          <p className="text-orange-600 font-bold text-2xl">
+            PKR {car.price.toLocaleString()}
+            <span className="text-sm text-gray-500 font-normal">/day</span>
+          </p>
+        </div>
+
+        {/* Specs Row */}
+        <div className="grid grid-cols-3 gap-3 mb-6 pb-6 border-b border-gray-100">
+          <div className="text-center">
+            <p className="text-gray-600 text-xs font-medium">Seats</p>
+            <p className="text-lg font-bold text-slate-900">{car.seats}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-600 text-xs font-medium">Transmission</p>
+            <p className="text-xs font-semibold text-slate-900 capitalize">{car.transmission}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-600 text-xs font-medium">Fuel</p>
+            <p className="text-xs font-semibold text-slate-900 capitalize">{car.fuel}</p>
+          </div>
+        </div>
+
+        {/* Available Toggle */}
+        <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
+          <button
+            onClick={() => onToggleAvailability(car)}
+            className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+              car.available
+                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            {car.available ? 'Available' : 'Unavailable'}
+          </button>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => onEdit(car)}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors"
+          >
+            <Edit2 size={16} />
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(car)}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors"
+          >
+            <Trash2 size={16} />
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CarsPage() {
   const [cars, setCars] = useState<Car[]>([]);
@@ -171,89 +304,7 @@ export default function CarsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCars.map((car) => (
-            <div key={car.carId} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
-              {/* Car Image */}
-              <div className="relative w-full h-48 bg-gray-200 overflow-hidden">
-                {car.images && car.images.length > 0 ? (
-                  <img 
-                    src={car.images[0]} 
-                    alt={car.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                    <span className="text-gray-500">No image</span>
-                  </div>
-                )}
-                <div className="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold capitalize">
-                  {car.category}
-                </div>
-              </div>
-
-              {/* Car Details */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-slate-900 mb-1">
-                  {car.brand} {car.name}
-                </h3>
-                <p className="text-sm text-gray-600 mb-4">{car.model} • {car.year}</p>
-
-                {/* Price */}
-                <div className="mb-4 pb-4 border-b border-gray-100">
-                  <p className="text-orange-600 font-bold text-2xl">
-                    PKR {car.price.toLocaleString()}
-                    <span className="text-sm text-gray-500 font-normal">/day</span>
-                  </p>
-                </div>
-
-                {/* Specs Row */}
-                <div className="grid grid-cols-3 gap-3 mb-6 pb-6 border-b border-gray-100">
-                  <div className="text-center">
-                    <p className="text-gray-600 text-xs font-medium">Seats</p>
-                    <p className="text-lg font-bold text-slate-900">{car.seats}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-gray-600 text-xs font-medium">Transmission</p>
-                    <p className="text-xs font-semibold text-slate-900 capitalize">{car.transmission}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-gray-600 text-xs font-medium">Fuel</p>
-                    <p className="text-xs font-semibold text-slate-900 capitalize">{car.fuel}</p>
-                  </div>
-                </div>
-
-                {/* Available Toggle */}
-                <div className="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100">
-                  <button
-                    onClick={() => handleToggleAvailability(car)}
-                    className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                      car.available
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    {car.available ? 'Available' : 'Unavailable'}
-                  </button>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleEditClick(car)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium hover:bg-blue-200 transition-colors"
-                  >
-                    <Edit2 size={16} />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(car)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg font-medium hover:bg-red-200 transition-colors"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+            <CarCard key={car.carId} car={car} onEdit={handleEditClick} onDelete={handleDeleteClick} onToggleAvailability={handleToggleAvailability} />
           ))}
         </div>
       )}
