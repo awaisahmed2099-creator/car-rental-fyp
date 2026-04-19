@@ -203,7 +203,7 @@ export default function BookingsPage() {
     return (
       <div className="min-h-screen bg-[#0a0a0f]">
         <AdminHeader title="Bookings Management" />
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-8 w-full">
           <SkeletonTable rows={8} />
         </div>
       </div>
@@ -214,7 +214,7 @@ export default function BookingsPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader title="Bookings Management" />
 
-      <div className="p-8 max-w-7xl mx-auto">
+      <div className="p-8 w-full">
         {/* Header */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Manage Bookings</h2>
@@ -222,7 +222,7 @@ export default function BookingsPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-600 text-xs font-medium">Total</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">{totalBookings}</p>

@@ -10,6 +10,21 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Load sidebar state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem('adminSidebarCollapsed');
+    if (savedState !== null) {
+      setIsSidebarCollapsed(savedState === 'true');
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    const newState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newState);
+    localStorage.setItem('adminSidebarCollapsed', String(newState));
+  };
 
   const isLoginOrSetup = pathname.includes('/admin/login') || pathname.includes('/admin/setup');
 
@@ -53,11 +68,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   // Protected pages - only show if authenticated
   if (adminUser) {
     return (
-      <div className="flex">
-        <AdminSidebar />
-        <div className="flex-1 ml-64">
+      <div className="flex min-h-screen bg-gray-50">
+        <AdminSidebar isCollapsed={isSidebarCollapsed} onToggle={toggleSidebar} />
+        <main className="flex-1 transition-all duration-300 ease-in-out min-w-0">
           {children}
-        </div>
+        </main>
       </div>
     );
   }

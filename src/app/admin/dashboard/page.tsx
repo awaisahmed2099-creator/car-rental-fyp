@@ -315,46 +315,70 @@ export default function DashboardPage() {
 
       {/* Stats Cards Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-orange-50 to-transparent rounded-full flex items-center justify-center">
-            <CarIcon className="w-8 h-8 text-orange-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Total Cars</p>
+              <p className="text-3xl font-bold text-slate-900">{stats.totalCars}</p>
+            </div>
+            <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center group-hover:bg-orange-100 transition-colors">
+              <CarIcon className="w-6 h-6 text-orange-500" />
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">Total Cars</p>
-            <p className="text-4xl font-bold text-slate-900 mb-2">{stats.totalCars}</p>
-            <p className="text-sm text-green-600 font-medium">{stats.availableCars} available</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-50 to-transparent rounded-full flex items-center justify-center">
-            <PackageIcon className="w-8 h-8 text-blue-500" />
-          </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">Total Packages</p>
-            <p className="text-4xl font-bold text-slate-900 mb-2">{stats.totalPackages}</p>
-            <p className="text-sm text-green-600 font-medium">{stats.activePackages} active</p>
+          <div className="mt-4 pt-4 border-t border-gray-50">
+            <p className="text-sm text-green-600 font-medium flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              {stats.availableCars} available now
+            </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-purple-50 to-transparent rounded-full flex items-center justify-center">
-            <CalendarCheck className="w-8 h-8 text-purple-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Total Packages</p>
+              <p className="text-3xl font-bold text-slate-900">{stats.totalPackages}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+              <PackageIcon className="w-6 h-6 text-blue-500" />
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">Total Bookings</p>
-            <p className="text-4xl font-bold text-slate-900 mb-2">{stats.totalBookings}</p>
-            <p className="text-sm text-green-600 font-medium">{stats.bookingsToday} today</p>
+          <div className="mt-4 pt-4 border-t border-gray-50">
+            <p className="text-sm text-green-600 font-medium flex items-center gap-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              {stats.activePackages} active
+            </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-green-50 to-transparent rounded-full flex items-center justify-center">
-            <TrendingUp className="w-8 h-8 text-green-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Total Bookings</p>
+              <p className="text-3xl font-bold text-slate-900">{stats.totalBookings}</p>
+            </div>
+            <div className="w-12 h-12 bg-purple-50 rounded-lg flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+              <CalendarCheck className="w-6 h-6 text-purple-500" />
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">Revenue This Month</p>
-            <p className="text-4xl font-bold text-slate-900 mb-2">PKR {stats.revenueThisMonth.toLocaleString()}</p>
+          <div className="mt-4 pt-4 border-t border-gray-50">
+            <p className="text-sm text-green-600 font-medium">
+              {stats.bookingsToday} today
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Revenue This Month</p>
+              <p className="text-2xl font-bold text-slate-900">PKR {stats.revenueThisMonth.toLocaleString()}</p>
+            </div>
+            <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center group-hover:bg-green-100 transition-colors">
+              <TrendingUp className="w-6 h-6 text-green-500" />
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-50">
             <p className="text-sm text-green-600 font-medium">Paid bookings</p>
           </div>
         </div>
@@ -362,50 +386,64 @@ export default function DashboardPage() {
 
       {/* Quick Stats Row - Enhanced with larger cards and hover effects */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-blue-50 to-transparent rounded-full flex items-center justify-center">
-            <CalendarCheck className="w-8 h-8 text-blue-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Today's Bookings</p>
+              <p className="text-3xl font-bold text-slate-900">{quickStats.bookingsToday}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+              <CalendarCheck className="w-6 h-6 text-blue-500" />
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">Today's Bookings</p>
-            <p className="text-4xl font-bold text-slate-900 mb-2">{quickStats.bookingsToday}</p>
+          <div className="mt-4 pt-4 border-t border-gray-50">
             <p className="text-sm text-blue-600 font-medium">Active bookings</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-green-50 to-transparent rounded-full flex items-center justify-center">
-            <DollarSign className="w-8 h-8 text-green-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">This Week Revenue</p>
+              <p className="text-2xl font-bold text-slate-900">PKR {(quickStats.weekRevenue / 1000).toFixed(0)}k</p>
+            </div>
+            <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center group-hover:bg-green-100 transition-colors">
+              <DollarSign className="w-6 h-6 text-green-500" />
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">This Week Revenue</p>
-            <p className="text-4xl font-bold text-slate-900 mb-2">PKR {(quickStats.weekRevenue / 1000).toFixed(0)}k</p>
+          <div className="mt-4 pt-4 border-t border-gray-50">
             <p className="text-sm text-green-600 font-medium">Week total</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-orange-50 to-transparent rounded-full flex items-center justify-center">
-            <Clock className={`w-8 h-8 ${quickStats.pendingPayments > 0 ? 'text-orange-500' : 'text-gray-400'}`} />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Pending Payments</p>
+              <p className={`text-3xl font-bold ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-slate-900'}`}>{quickStats.pendingPayments}</p>
+            </div>
+            <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center group-hover:bg-orange-100 transition-colors">
+              <Clock className={`w-6 h-6 ${quickStats.pendingPayments > 0 ? 'text-orange-500' : 'text-gray-400'}`} />
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">Pending Payments</p>
-            <p className={`text-4xl font-bold mb-2 ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-slate-900'}`}>
-              {quickStats.pendingPayments}
-            </p>
+          <div className="mt-4 pt-4 border-t border-gray-50">
             <p className={`text-sm font-medium ${quickStats.pendingPayments > 0 ? 'text-orange-600' : 'text-green-600'}`}>
               {quickStats.pendingPayments > 0 ? 'Awaiting payment' : 'All paid'}
             </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[180px] flex flex-col justify-between">
-          <div className="absolute top-6 right-6 w-16 h-16 bg-gradient-to-br from-red-50 to-transparent rounded-full flex items-center justify-center">
-            <AlertCircle className="w-8 h-8 text-red-500" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-shadow duration-300 relative min-h-[160px] flex flex-col justify-between group">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Cancelled This Month</p>
+              <p className="text-3xl font-bold text-slate-900">{quickStats.cancelledThisMonth}</p>
+            </div>
+            <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center group-hover:bg-red-100 transition-colors">
+              <AlertCircle className="w-6 h-6 text-red-500" />
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium mb-2">Cancelled This Month</p>
-            <p className="text-4xl font-bold text-slate-900 mb-2">{quickStats.cancelledThisMonth}</p>
+          <div className="mt-4 pt-4 border-t border-gray-50">
             <p className="text-sm text-red-600 font-medium">Month total</p>
           </div>
         </div>
@@ -470,10 +508,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Revenue Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-8 mb-8">
         <h2 className="text-xl font-bold text-slate-900 mb-6">Last 7 Days Revenue</h2>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
+          <BarChart data={chartData} margin={{ left: 60, right: 0, top: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="date" stroke="#6b7280" />
             <YAxis stroke="#6b7280" />

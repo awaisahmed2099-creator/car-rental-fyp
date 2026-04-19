@@ -1,8 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, User } from 'lucide-react';
+import Link from 'next/link';
 import { useAdminAuth } from '@/context/AdminAuthContext';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { COLLECTIONS } from '@/lib/collections';
 
 interface AdminHeaderProps {
   title: string;
@@ -10,6 +14,21 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ title }: AdminHeaderProps) {
   const { adminUser } = useAdminAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    // Listener for unread notifications
+    const q = query(
+      collection(db, COLLECTIONS.NOTIFICATIONS),
+      where('read', '==', false)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnreadCount(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <header className="bg-white border-b border-gray-200 px-8 py-6 flex items-center justify-between">
@@ -22,10 +41,17 @@ export default function AdminHeader({ title }: AdminHeaderProps) {
       {/* Right Section */}
       <div className="flex items-center gap-6">
         {/* Notification Bell */}
-        <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+        <Link 
+          href="/admin/notifications"
+          className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+        >
           <Bell size={24} />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </Link>
 
         {/* User Avatar */}
         <div className="flex items-center gap-3">

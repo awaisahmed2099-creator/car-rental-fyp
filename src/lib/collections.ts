@@ -3,5 +3,6 @@ export const COLLECTIONS = {
   PACKAGES: 'packages',
   BOOKINGS: 'bookings',
   SETTINGS: 'settings',
-  ADMINS: 'admins'
+  ADMINS: 'admins',
+  NOTIFICATIONS: 'notifications'
 };

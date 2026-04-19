@@ -263,9 +263,9 @@ export default function PaymentsPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader title="Payment Management" />
 
-      <main className="max-w-7xl mx-auto px-8 py-8">
+      <div className="w-full px-8 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
           {/* Total Revenue */}
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
             <div className="flex justify-between items-start">
@@ -524,10 +524,10 @@ export default function PaymentsPage() {
         </div>
 
         {/* Revenue Chart */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 mt-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Revenue Trend (Last 30 Days)</h2>
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 60, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#f97316" stopOpacity={0.8} />
@@ -557,7 +557,7 @@ export default function PaymentsPage() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </main>
+      </div>
 
       {/* Modals */}
       {selectedBooking && (
