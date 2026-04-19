@@ -11,6 +11,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import AddCarModal from '@/components/admin/AddCarModal';
 import EditCarModal from '@/components/admin/EditCarModal';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import SkeletonCard from '@/components/ui/SkeletonCard';
 
 const CATEGORIES = ['All', 'Sedan', 'SUV', 'Luxury', 'Van', 'Coaster'];
 
@@ -292,9 +293,10 @@ export default function CarsPage() {
 
       {/* Cars Grid */}
       {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block w-12 h-12 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-          <p className="text-gray-600 mt-4">Loading cars...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <SkeletonCard key={i} variant="car" />
+          ))}
         </div>
       ) : filteredCars.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl border border-gray-100">

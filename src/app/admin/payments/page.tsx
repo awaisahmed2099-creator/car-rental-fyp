@@ -544,7 +544,7 @@ export default function PaymentsPage() {
                   borderRadius: '8px',
                   color: '#fff',
                 }}
-                formatter={(value) => [`PKR ${value.toLocaleString()}`, 'Revenue']}
+                formatter={(value: any) => [`PKR ${Number(value).toLocaleString()}`, 'Revenue']}
               />
               <Area
                 type="monotone"

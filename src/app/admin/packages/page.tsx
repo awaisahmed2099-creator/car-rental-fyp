@@ -11,6 +11,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import AddPackageModal from '@/components/admin/AddPackageModal';
 import EditPackageModal from '@/components/admin/EditPackageModal';
 import ConfirmDialog from '@/components/admin/ConfirmDialog';
+import SkeletonCard from '@/components/ui/SkeletonCard';
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState<Package[]>([]);
@@ -92,10 +93,12 @@ export default function PackagesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#0a0a0f]">
         <AdminHeader title="Packages Management" />
-        <div className="flex items-center justify-center h-64">
-          <p className="text-gray-500">Loading packages...</p>
+        <div className="p-8 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <SkeletonCard key={i} variant="package" />
+          ))}
         </div>
       </div>
     );

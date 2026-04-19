@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { BookingFormData } from '@/hooks/useBooking';
-import { ChevronRight, AlertCircle } from 'lucide-react';
+import { ChevronRight, AlertCircle, MapPin } from 'lucide-react';
 
 interface CustomerDetailsFormProps {
   onContinue: (data: BookingFormData) => void;
@@ -86,190 +86,196 @@ export default function CustomerDetailsForm({
     }
   };
 
+  const inputClasses = "w-full px-4 py-3 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all text-sm";
+  const errorInputClasses = "w-full px-4 py-3 bg-red-500/5 border border-red-500/50 rounded-xl text-white placeholder:text-red-500/50 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition-all text-sm";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Full Name */}
-      <div>
-        <label htmlFor="name" className="block text-sm font-semibold text-gray-900 mb-2">
-          Full Name *
-        </label>
-        <input
-          id="name"
-          type="text"
-          value={formData.customerName}
-          onChange={(e) => {
-            setFormData({ ...formData, customerName: e.target.value });
-            if (errors.customerName) {
-              setErrors({ ...errors, customerName: '' });
-            }
-          }}
-          placeholder="Enter your full name"
-          className={`w-full px-4 py-2 rounded-lg border ${
-            errors.customerName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-          } focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900`}
-        />
-        {errors.customerName && (
-          <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
-            <AlertCircle size={16} />
-            {errors.customerName}
-          </div>
-        )}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-white mb-2">Personal Information</h2>
+        <p className="text-sm text-gray-500">Provide your details to securely confirm the booking.</p>
       </div>
 
-      {/* Phone Number */}
-      <div>
-        <label htmlFor="phone" className="block text-sm font-semibold text-gray-900 mb-2">
-          Phone Number * <span className="text-gray-500 font-normal">(03XXXXXXXXX)</span>
-        </label>
-        <input
-          id="phone"
-          type="tel"
-          value={formData.customerPhone}
-          onChange={(e) => handlePhoneChange(e.target.value)}
-          placeholder="03001234567"
-          className={`w-full px-4 py-2 rounded-lg border ${
-            errors.customerPhone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-          } focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono text-slate-900`}
-        />
-        {errors.customerPhone && (
-          <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
-            <AlertCircle size={16} />
-            {errors.customerPhone}
-          </div>
-        )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Full Name */}
+        <div>
+          <label htmlFor="name" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+            Full Name <span className="text-orange-500">*</span>
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={formData.customerName}
+            onChange={(e) => {
+              setFormData({ ...formData, customerName: e.target.value });
+              if (errors.customerName) setErrors({ ...errors, customerName: '' });
+            }}
+            placeholder="Enter your full name"
+            className={errors.customerName ? errorInputClasses : inputClasses}
+          />
+          {errors.customerName && (
+            <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
+              <AlertCircle size={14} /> {errors.customerName}
+            </div>
+          )}
+        </div>
+
+        {/* Phone Number */}
+        <div>
+          <label htmlFor="phone" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+            Phone Number <span className="text-orange-500">*</span> 
+            <span className="text-gray-600 ml-1 font-normal lowercase tracking-normal">(03XXXXXXXXX)</span>
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            value={formData.customerPhone}
+            onChange={(e) => handlePhoneChange(e.target.value)}
+            placeholder="03001234567"
+            className={`${errors.customerPhone ? errorInputClasses : inputClasses} font-mono`}
+          />
+          {errors.customerPhone && (
+            <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
+              <AlertCircle size={14} /> {errors.customerPhone}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Email */}
       <div>
-        <label htmlFor="email" className="block text-sm font-semibold text-gray-900 mb-2">
-          Email <span className="text-gray-500 font-normal">(Optional)</span>
+        <label htmlFor="email" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+          Email <span className="text-gray-600 ml-1 font-normal capitalize tracking-normal">(Optional)</span>
         </label>
         <input
           id="email"
           type="email"
           value={formData.customerEmail}
           onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
-          placeholder="your.email@example.com"
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900"
+          placeholder="your@email.com"
+          className={inputClasses}
         />
       </div>
 
-      {/* Pickup Location */}
-      <div>
-        <label htmlFor="pickup" className="block text-sm font-semibold text-gray-900 mb-2">
-          Pickup Location *
-        </label>
-        <div className="relative">
-          <input
-            id="pickup"
-            type="text"
-            value={formData.pickupLocation}
-            onChange={(e) => {
-              setFormData({ ...formData, pickupLocation: e.target.value });
-              setShowPickupSuggestions(true);
-              if (errors.pickupLocation) {
-                setErrors({ ...errors, pickupLocation: '' });
-              }
-            }}
-            onFocus={() => setShowPickupSuggestions(true)}
-            placeholder="Enter or select pickup location"
-            className={`w-full px-4 py-2 rounded-lg border ${
-              errors.pickupLocation ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-            } focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900`}
-          />
-          {showPickupSuggestions && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-              {LOCATION_SUGGESTIONS.map((location) => (
-                <button
-                  key={location}
-                  type="button"
-                  onClick={() => handleLocationSelect(location, 'pickup')}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b last:border-b-0 transition-colors"
-                >
-                  {location}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        {errors.pickupLocation && (
-          <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
-            <AlertCircle size={16} />
-            {errors.pickupLocation}
-          </div>
-        )}
+      <div className="pt-6 mt-6 border-t border-[#2a2a3a]">
+        <h2 className="text-xl font-bold text-white mb-2">Location Information</h2>
+        <p className="text-sm text-gray-500 mb-6">Where should we deliver and pick up the vehicle?</p>
       </div>
 
-      {/* Drop-off Location */}
-      <div>
-        <label htmlFor="dropoff" className="block text-sm font-semibold text-gray-900 mb-2">
-          Drop-off Location *
-        </label>
-        <div className="relative">
-          <input
-            id="dropoff"
-            type="text"
-            value={formData.dropoffLocation}
-            onChange={(e) => {
-              setFormData({ ...formData, dropoffLocation: e.target.value });
-              setShowDropoffSuggestions(true);
-              if (errors.dropoffLocation) {
-                setErrors({ ...errors, dropoffLocation: '' });
-              }
-            }}
-            onFocus={() => setShowDropoffSuggestions(true)}
-            placeholder="Enter or select drop-off location"
-            className={`w-full px-4 py-2 rounded-lg border ${
-              errors.dropoffLocation ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-            } focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-900`}
-          />
-          {showDropoffSuggestions && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-              {LOCATION_SUGGESTIONS.map((location) => (
-                <button
-                  key={location}
-                  type="button"
-                  onClick={() => handleLocationSelect(location, 'dropoff')}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 border-b last:border-b-0 transition-colors"
-                >
-                  {location}
-                </button>
-              ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Pickup Location */}
+        <div>
+          <label htmlFor="pickup" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+            Pickup Location <span className="text-orange-500">*</span>
+          </label>
+          <div className="relative">
+            <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              id="pickup"
+              type="text"
+              value={formData.pickupLocation}
+              onChange={(e) => {
+                setFormData({ ...formData, pickupLocation: e.target.value });
+                setShowPickupSuggestions(true);
+                if (errors.pickupLocation) setErrors({ ...errors, pickupLocation: '' });
+              }}
+              onFocus={() => setShowPickupSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
+              placeholder="Enter pickup location"
+              className={`${errors.pickupLocation ? errorInputClasses : inputClasses} pl-10`}
+            />
+            {showPickupSuggestions && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-xl z-20 overflow-hidden backdrop-blur-md">
+                {LOCATION_SUGGESTIONS.map((location) => (
+                  <button
+                    key={location}
+                    type="button"
+                    onClick={() => handleLocationSelect(location, 'pickup')}
+                    className="w-full text-left px-4 py-3 hover:bg-[#2a2a3a] text-sm text-gray-300 hover:text-white transition-colors border-b border-[#2a2a3a] last:border-0"
+                  >
+                    {location}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {errors.pickupLocation && (
+            <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
+              <AlertCircle size={14} /> {errors.pickupLocation}
             </div>
           )}
         </div>
-        {errors.dropoffLocation && (
-          <div className="flex items-center gap-1 mt-2 text-red-600 text-sm">
-            <AlertCircle size={16} />
-            {errors.dropoffLocation}
+
+        {/* Drop-off Location */}
+        <div>
+          <label htmlFor="dropoff" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+            Drop-off Location <span className="text-orange-500">*</span>
+          </label>
+          <div className="relative">
+            <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              id="dropoff"
+              type="text"
+              value={formData.dropoffLocation}
+              onChange={(e) => {
+                setFormData({ ...formData, dropoffLocation: e.target.value });
+                setShowDropoffSuggestions(true);
+                if (errors.dropoffLocation) setErrors({ ...errors, dropoffLocation: '' });
+              }}
+              onFocus={() => setShowDropoffSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowDropoffSuggestions(false), 200)}
+              placeholder="Enter drop-off location"
+              className={`${errors.dropoffLocation ? errorInputClasses : inputClasses} pl-10`}
+            />
+            {showDropoffSuggestions && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-xl z-20 overflow-hidden backdrop-blur-md">
+                {LOCATION_SUGGESTIONS.map((location) => (
+                  <button
+                    key={location}
+                    type="button"
+                    onClick={() => handleLocationSelect(location, 'dropoff')}
+                    className="w-full text-left px-4 py-3 hover:bg-[#2a2a3a] text-sm text-gray-300 hover:text-white transition-colors border-b border-[#2a2a3a] last:border-0"
+                  >
+                    {location}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+          {errors.dropoffLocation && (
+            <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
+              <AlertCircle size={14} /> {errors.dropoffLocation}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Special Notes */}
-      <div>
-        <label htmlFor="notes" className="block text-sm font-semibold text-gray-900 mb-2">
-          Special Notes <span className="text-gray-500 font-normal">(Optional)</span>
+      <div className="pt-6">
+        <label htmlFor="notes" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+          Special Notes <span className="text-gray-600 ml-1 font-normal capitalize tracking-normal">(Optional)</span>
         </label>
         <textarea
           id="notes"
           value={formData.notes || ''}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           placeholder="Any special requirements or additional notes?"
-          rows={4}
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none text-slate-900"
+          rows={3}
+          className={`${inputClasses} resize-none`}
         />
       </div>
 
       {/* Continue Button */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-      >
-        Continue to Payment
-        <ChevronRight size={20} />
-      </button>
+      <div className="pt-4 mt-6 border-t border-[#2a2a3a]">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold flex items-center justify-center gap-2 py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
+        >
+          Proceed to Payment
+          <ChevronRight size={18} />
+        </button>
+      </div>
     </form>
   );
 }

@@ -7,26 +7,35 @@ interface SkeletonCardProps {
 export default function SkeletonCard({ variant = 'car' }: SkeletonCardProps) {
   if (variant === 'package') {
     return (
-      <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl p-6 animate-pulse h-80">
-        <div className="h-8 bg-slate-600 rounded w-3/4 mb-4"></div>
-        <div className="h-4 bg-slate-600 rounded w-1/2 mb-6"></div>
-        <div className="space-y-3 mb-6">
-          <div className="h-4 bg-slate-600 rounded w-full"></div>
-          <div className="h-4 bg-slate-600 rounded w-5/6"></div>
+      <div className="card-dark rounded-2xl overflow-hidden animate-pulse">
+        <div className="aspect-video shimmer" />
+        <div className="p-6 space-y-4">
+          <div className="h-6 shimmer rounded-lg w-3/4" />
+          <div className="h-4 shimmer rounded-lg w-1/2" />
+          <div className="space-y-2">
+            <div className="h-3 shimmer rounded-lg w-full" />
+            <div className="h-3 shimmer rounded-lg w-5/6" />
+          </div>
+          <div className="h-10 shimmer rounded-xl w-full mt-4" />
         </div>
-        <div className="h-10 bg-slate-600 rounded w-full"></div>
       </div>
     );
   }
 
   // Car variant
   return (
-    <div className="bg-white rounded-xl overflow-hidden animate-pulse">
-      <div className="bg-gray-300 aspect-video rounded-xl"></div>
-      <div className="p-4">
-        <div className="h-6 bg-gray-300 rounded w-3/4 mb-3"></div>
-        <div className="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
-        <div className="h-8 bg-gray-300 rounded w-1/3"></div>
+    <div className="card-dark rounded-2xl overflow-hidden animate-pulse">
+      <div className="aspect-video shimmer" />
+      <div className="p-5 space-y-3">
+        <div className="h-5 shimmer rounded-lg w-3/4" />
+        <div className="h-4 shimmer rounded-lg w-1/2" />
+        <div className="flex gap-3 py-3">
+          <div className="h-4 shimmer rounded-lg w-16" />
+          <div className="h-4 shimmer rounded-lg w-20" />
+          <div className="h-4 shimmer rounded-lg w-14" />
+        </div>
+        <div className="h-8 shimmer rounded-lg w-1/3" />
+        <div className="h-10 shimmer rounded-xl w-full mt-2" />
       </div>
     </div>
   );

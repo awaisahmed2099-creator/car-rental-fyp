@@ -22,127 +22,121 @@ export default function PaymentMethodSelector({
 }: PaymentMethodSelectorProps) {
   const [selectedMethod, setSelectedMethod] = useState<'cash' | 'jazzcash' | null>(null);
 
-  const handleSelectCash = () => {
-    setSelectedMethod('cash');
-  };
-
-  const handleSelectJazzCash = () => {
-    setSelectedMethod('jazzcash');
-  };
+  const handleSelectCash = () => setSelectedMethod('cash');
+  const handleSelectJazzCash = () => setSelectedMethod('jazzcash');
 
   const handleConfirmCash = () => {
-    if (selectedMethod === 'cash') {
-      onCashSelect();
-    }
+    if (selectedMethod === 'cash') onCashSelect();
   };
 
   const handleConfirmJazzCash = () => {
-    if (selectedMethod === 'jazzcash' && onJazzCashSelect) {
-      onJazzCashSelect();
-    }
+    if (selectedMethod === 'jazzcash' && onJazzCashSelect) onJazzCashSelect();
   };
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-orange-500 hover:text-orange-600 font-semibold transition-colors"
-      >
-        <ChevronLeft size={20} />
-        Back to Customer Details
-      </button>
+      {/* Header and Back Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 pb-6 border-b border-[#2a2a3a]">
+        <div>
+          <h2 className="text-xl font-bold text-white mb-2">Payment Details</h2>
+          <p className="text-sm text-gray-500">Select how you want to pay for this booking.</p>
+        </div>
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a1a24] hover:bg-[#2a2a3a] text-gray-300 font-medium rounded-lg text-sm transition-colors border border-[#2a2a3a]"
+        >
+          <ChevronLeft size={16} />
+          Go Back
+        </button>
+      </div>
 
-      {/* Payment Method Cards */}
+      {/* Payment Methods */}
       <div className="space-y-4">
         {/* Cash Payment Card */}
         <button
           onClick={handleSelectCash}
           disabled={loading}
           type="button"
-          className={`w-full p-6 rounded-xl border-2 transition-all duration-200 text-left ${
+          className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
             selectedMethod === 'cash'
-              ? 'border-orange-500 bg-orange-50'
-              : 'border-gray-300 bg-white hover:border-orange-300 hover:bg-orange-50'
-          } ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+              ? 'border-orange-500 bg-orange-500/5'
+              : 'border-[#2a2a3a] bg-[#1a1a24] hover:border-[#3a3a4a] hover:bg-[#2a2a3a]'
+          } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
-          <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-lg ${
-              selectedMethod === 'cash' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600'
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-xl transition-colors ${
+              selectedMethod === 'cash' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400'
             }`}>
-              <Banknote size={32} />
+              <Banknote size={24} />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Cash Payment</h3>
-              <p className="text-gray-600">Pay when you receive the car</p>
+              <h3 className={`text-base font-semibold mb-1 transition-colors ${
+                selectedMethod === 'cash' ? 'text-white' : 'text-gray-300'
+              }`}>Cash on Delivery</h3>
+              <p className="text-xs text-gray-500">Pay directly when you receive the vehicle</p>
             </div>
-            {selectedMethod === 'cash' && (
-              <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            )}
+            {/* Radio indicator */}
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
+              selectedMethod === 'cash' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
+            }`}>
+              {selectedMethod === 'cash' && (
+                <div className="w-2 h-2 rounded-full bg-[#111118]" />
+              )}
+            </div>
           </div>
         </button>
 
-        {/* JazzCash Payment Card - Only show if enabled */}
+        {/* JazzCash Payment Card */}
         {jazzcashEnabled && (
           <button
             onClick={handleSelectJazzCash}
             disabled={loading}
             type="button"
-            className={`w-full p-6 rounded-xl border-2 transition-all duration-200 text-left ${
+            className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
               selectedMethod === 'jazzcash'
-                ? 'border-orange-500 bg-orange-50'
-                : 'border-gray-300 bg-white hover:border-orange-300 hover:bg-orange-50'
-            } ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                ? 'border-orange-500 bg-orange-500/5'
+                : 'border-[#2a2a3a] bg-[#1a1a24] hover:border-[#3a3a4a] hover:bg-[#2a2a3a]'
+            } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-lg ${
-                selectedMethod === 'jazzcash' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600'
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-xl transition-colors ${
+                selectedMethod === 'jazzcash' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400'
               }`}>
-                <Smartphone size={32} />
+                <Smartphone size={24} />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">JazzCash</h3>
-                <p className="text-gray-600">Pay securely online now</p>
+                <h3 className={`text-base font-semibold mb-1 transition-colors ${
+                  selectedMethod === 'jazzcash' ? 'text-white' : 'text-gray-300'
+                }`}>JazzCash</h3>
+                <p className="text-xs text-gray-500">Pay securely via digital wallet</p>
               </div>
-              {selectedMethod === 'jazzcash' && (
-                <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              )}
+              {/* Radio indicator */}
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
+                selectedMethod === 'jazzcash' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
+              }`}>
+                {selectedMethod === 'jazzcash' && (
+                  <div className="w-2 h-2 rounded-full bg-[#111118]" />
+                )}
+              </div>
             </div>
           </button>
         )}
       </div>
 
-      {/* Amount Display */}
-      <div className="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
-        <p className="text-gray-600 mb-2">Total Amount to Pay</p>
-        <p className="text-4xl font-bold text-orange-500">PKR {amount.toLocaleString()}</p>
-      </div>
+      {/* Action Area */}
+      <div className="pt-6 mt-6 border-t border-[#2a2a3a]">
+        <div className="bg-[#1a1a24] border border-[#2a2a3a] rounded-xl p-6 text-center mb-6">
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Total to Pay</p>
+          <p className="text-4xl font-bold text-orange-500">PKR {amount.toLocaleString()}</p>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="space-y-3">
         {selectedMethod === 'cash' && (
           <button
             onClick={handleConfirmCash}
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
           >
-            {loading ? 'Processing...' : 'Confirm Booking'}
+            {loading ? 'Confirming...' : 'Confirm Cash Booking'}
           </button>
         )}
 
@@ -150,30 +144,29 @@ export default function PaymentMethodSelector({
           <button
             onClick={handleConfirmJazzCash}
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
           >
-            {loading ? 'Processing...' : `Pay PKR ${amount.toLocaleString()} via JazzCash`}
+            {loading ? 'Processing...' : `Pay PKR ${amount.toLocaleString()}`}
           </button>
         )}
 
         {!selectedMethod && (
-          <p className="text-center text-gray-600 py-4">
-            Select a payment method to continue
-          </p>
+          <button
+            disabled
+            className="w-full bg-[#2a2a3a] text-gray-500 font-semibold py-4 px-6 rounded-xl cursor-not-allowed"
+          >
+            Choose a Payment Method
+          </button>
         )}
       </div>
 
-      {/* Info Text */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        {jazzcashEnabled ? (
-          <p className="text-sm text-blue-900">
-            💡 <strong>Security:</strong> Both payment methods are secure. Choose what works best for you.
-          </p>
-        ) : (
-          <p className="text-sm text-blue-900">
-            💡 <strong>Note:</strong> Only cash payment is available at this time. You can pay when you receive the car.
-          </p>
-        )}
+      {/* Security Note */}
+      <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0110 0v4"></path>
+        </svg>
+        <span>Your payment information is thoroughly encrypted and secure.</span>
       </div>
     </div>
   );

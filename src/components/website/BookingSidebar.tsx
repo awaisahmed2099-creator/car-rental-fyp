@@ -1,135 +1,141 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 interface BookingSidebarProps {
   carId?: string;
-  packageId?: string;
   carName?: string;
   carPrice?: number;
+  packageId?: string;
   packageName?: string;
   packagePrice?: number;
 }
 
-export default function BookingSidebar({
-  carId,
-  packageId,
-  carName,
-  carPrice,
-  packageName,
-  packagePrice,
-}: BookingSidebarProps) {
+export default function BookingSidebar({ carId, carName, carPrice, packageId, packageName, packagePrice }: BookingSidebarProps) {
   const router = useRouter();
+  
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  
+  const [totalDays, setTotalDays] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+
   const price = carPrice || packagePrice || 0;
-  
-  // Calculate total days and amount
-  const totalDays = startDate && endDate
-    ? Math.ceil(
-        (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-        (1000 * 60 * 60 * 24)
-      )
-    : 0;
+  const name = carName || packageName || '';
 
-  const totalAmount = totalDays > 0 ? totalDays * price : 0;
+  // Calculate total whenever dates change
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (end >= start) {
+        // Calculate days (add 1 because same day return counts as 1 day)
+        const days = differenceInDays(end, start) + 1;
+        setTotalDays(days);
+        setTotalPrice(days * price);
+      } else {
+        setTotalDays(0);
+        setTotalPrice(0);
+      }
+    }
+  }, [startDate, endDate, price]);
 
-  const handleProceedToBook = () => {
+  const handleBooking = () => {
     if (!startDate || !endDate) {
-      alert('Please fill in all required fields');
+      toast.error('Please select both start and end dates');
       return;
     }
 
-    // Format dates for URL
-    const params = new URLSearchParams();
-    params.append('startDate', startDate);
-    params.append('endDate', endDate);
-    params.append('amount', totalAmount.toString());
-    if (carId) {
-      params.append('carId', carId);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      toast.error('End date cannot be before start date');
+      return;
     }
-    if (packageId) {
-      params.append('packageId', packageId);
-    }
+
+    // Redirect to booking page with parameters
+    const params = new URLSearchParams({
+      startDate,
+      endDate,
+      amount: totalPrice.toString()
+    });
+    if (carId) params.append('carId', carId);
+    if (packageId) params.append('packageId', packageId);
 
     router.push(`/booking?${params.toString()}`);
   };
 
+  // Get minimum date (today)
+  const today = new Date().toISOString().split('T')[0];
+
+  const inputClasses = "w-full px-4 py-3 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all text-sm";
+
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24 h-fit">
-      {/* Title */}
-      <h3 className="text-2xl font-bold text-gray-900 mb-6">
-        Book This {carId ? 'Car' : 'Package'}
+    <div className="card-dark p-6 sticky top-28">
+      <h3 className="text-xl font-bold text-white mb-6 pb-4 border-b border-[#2a2a3a]">
+        Book This {packageId ? 'Package' : 'Car'}
       </h3>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {/* Start Date */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Start Date *
+          <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+            Pickup Date
           </label>
           <input
             type="date"
+            min={today}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 text-slate-900"
+            className={inputClasses}
           />
         </div>
 
         {/* End Date */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            End Date *
+          <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+            Return Date
           </label>
           <input
             type="date"
+            min={startDate || today}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 text-slate-900"
+            className={inputClasses}
           />
         </div>
 
-        {/* Days and Amount */}
-        {totalDays > 0 && (
-          <div className="bg-orange-50 p-4 rounded-lg space-y-2">
-            <div className="flex justify-between text-gray-700">
-              <span>Total Days:</span>
-              <span className="font-semibold">{totalDays} day{totalDays !== 1 ? 's' : ''}</span>
+        {/* Price Breakdown */}
+        {totalDays > 0 ? (
+          <div className="pt-4 border-t border-[#2a2a3a]">
+            <div className="flex justify-between text-sm mb-2 text-gray-400">
+              <span>PKR {price.toLocaleString()} x {totalDays} days</span>
+              <span>PKR {totalPrice.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-gray-700">
-              <span>Rate/Day:</span>
-              <span className="font-semibold">PKR {price.toLocaleString()}</span>
+            
+            <div className="flex justify-between font-bold text-lg mt-4 text-white">
+              <span>Total Price</span>
+              <span className="text-orange-500">PKR {totalPrice.toLocaleString()}</span>
             </div>
-            <div className="border-t border-orange-200 pt-2 flex justify-between text-lg font-bold text-orange-600">
-              <span>Total Amount:</span>
-              <span>PKR {totalAmount.toLocaleString()}</span>
-            </div>
+          </div>
+        ) : (
+          <div className="pt-4 border-t border-[#2a2a3a] text-center text-sm text-gray-500">
+            Select dates to calculate price
           </div>
         )}
 
-        {/* Availability Note */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <p className="text-sm text-green-800">
-            ✓ Vehicle is available for booking
-          </p>
-        </div>
-
-        {/* Proceed Button */}
+        {/* Action Button */}
         <button
-          onClick={handleProceedToBook}
-          disabled={!startDate || !endDate}
-          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-colors"
+          onClick={handleBooking}
+          disabled={totalDays === 0}
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 mt-4 hover:shadow-lg hover:shadow-orange-500/20"
         >
-          Proceed to Book
+          Proceed to Checkout
         </button>
-
-        {/* Info Text */}
-        <p className="text-xs text-gray-600 text-center">
-          * Required fields
-        </p>
       </div>
     </div>
   );

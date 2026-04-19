@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Users, Zap, Fuel, Calendar } from 'lucide-react';
+import { Users, Zap, Fuel, Calendar, Check } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -25,7 +25,6 @@ export default function CarDetailPage() {
     const fetchCar = async () => {
       try {
         setLoading(true);
-        // Fetch the car by document ID
         const carDocRef = doc(db, COLLECTIONS.CARS, carId);
         const carDocSnapshot = await getDoc(carDocRef);
 
@@ -102,7 +101,7 @@ export default function CarDetailPage() {
 
   if (loading) {
     return (
-      <section className="py-12 bg-gray-50 min-h-screen">
+      <section className="py-12 bg-[#0a0a0f] min-h-screen pt-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
@@ -117,13 +116,13 @@ export default function CarDetailPage() {
 
   if (!car) {
     return (
-      <section className="py-12 bg-gray-50 min-h-screen">
+      <section className="py-12 bg-[#0a0a0f] min-h-screen pt-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-600 text-lg mb-6">Car not found</p>
+          <div className="card-dark p-12 text-center">
+            <p className="text-gray-500 text-lg mb-6">Car not found</p>
             <a
               href="/cars"
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors inline-block"
+              className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl text-sm transition-colors inline-block"
             >
               Back to Cars
             </a>
@@ -137,49 +136,52 @@ export default function CarDetailPage() {
     ? car.images.filter(img => img && typeof img === 'string')
     : ['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&h=600&fit=crop'];
 
-  // Ensure we always have valid images
   const validImages = carImages.length > 0 ? carImages : ['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&h=600&fit=crop'];
+
+  const specs = [
+    { icon: Users, label: 'Seats', value: car.seats },
+    { icon: Zap, label: 'Transmission', value: car.transmission },
+    { icon: Fuel, label: 'Fuel', value: car.fuel },
+    { icon: Calendar, label: 'Year', value: car.year },
+  ];
 
   return (
     <>
       {/* Hero Banner */}
-      <section className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-gray-300">
-            <a href="/" className="hover:text-orange-500 transition-colors">
-              Home
-            </a>
-            <span>/</span>
-            <a href="/cars" className="hover:text-orange-500 transition-colors">
-              Cars
-            </a>
-            <span>/</span>
+      <section className="relative bg-[#0a0a0f] pt-28 pb-8 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(249,115,22,0.06)_0%,_transparent_60%)]" />
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex items-center gap-2 text-sm">
+            <a href="/" className="text-gray-500 hover:text-orange-500 transition-colors">Home</a>
+            <span className="text-gray-700">/</span>
+            <a href="/cars" className="text-gray-500 hover:text-orange-500 transition-colors">Cars</a>
+            <span className="text-gray-700">/</span>
             <span className="text-orange-500">{car.brand} {car.name}</span>
           </nav>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-gray-50 min-h-screen">
+      <section className="pb-16 bg-[#0a0a0f] min-h-screen">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
             {/* Left Column - Images and Info */}
             <div className="lg:col-span-2">
               {/* Image Gallery */}
               <ImageGallery images={validImages} alt={`${car.brand} ${car.name}`} />
 
               {/* Car Info Section */}
-              <div className="bg-white rounded-lg shadow p-8 mt-8">
+              <div className="card-dark p-8 mt-8">
                 {/* Title and Category */}
-                <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="mb-6 pb-6 border-b border-[#2a2a3a]">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                      <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                         {car.brand} {car.name}
                       </h1>
-                      <p className="text-gray-600">{car.model} • {car.year}</p>
+                      <p className="text-gray-500">{car.model} • {car.year}</p>
                     </div>
-                    <div className="bg-orange-500 text-white px-4 py-2 rounded-full font-semibold capitalize text-sm">
+                    <div className="bg-orange-500/10 border border-orange-500/20 text-orange-500 px-4 py-1.5 rounded-full font-semibold capitalize text-sm">
                       {car.category}
                     </div>
                   </div>
@@ -187,79 +189,48 @@ export default function CarDetailPage() {
 
                 {/* Price */}
                 <div className="mb-6">
-                  <p className="text-gray-600 text-sm mb-1">Price per Day</p>
-                  <p className="text-4xl font-bold text-orange-500">
+                  <p className="text-gray-500 text-sm mb-1">Price per Day</p>
+                  <p className="text-3xl font-bold text-white">
                     PKR {car.price.toLocaleString()}
-                    <span className="text-lg text-gray-600 font-normal">/day</span>
+                    <span className="text-base text-gray-500 font-normal">/day</span>
                   </p>
                 </div>
 
                 {/* Specs Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 pb-8 border-b border-gray-200">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Users className="text-orange-500" size={20} />
-                      <span className="text-sm text-gray-600">Seats</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {car.seats}
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap className="text-orange-500" size={20} />
-                      <span className="text-sm text-gray-600">Transmission</span>
-                    </div>
-                    <p className="text-lg font-bold text-gray-900 capitalize">
-                      {car.transmission}
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Fuel className="text-orange-500" size={20} />
-                      <span className="text-sm text-gray-600">Fuel</span>
-                    </div>
-                    <p className="text-lg font-bold text-gray-900 capitalize">
-                      {car.fuel}
-                    </p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="text-orange-500" size={20} />
-                      <span className="text-sm text-gray-600">Year</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-900">
-                      {car.year}
-                    </p>
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 pb-8 border-b border-[#2a2a3a]">
+                  {specs.map((spec, idx) => {
+                    const Icon = spec.icon;
+                    return (
+                      <div key={idx} className="bg-[#1a1a24] border border-[#2a2a3a] p-4 rounded-xl">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Icon className="text-orange-500" size={18} />
+                          <span className="text-xs text-gray-500">{spec.label}</span>
+                        </div>
+                        <p className="text-lg font-bold text-white capitalize">{spec.value}</p>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Features */}
                 <div className="mb-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">
-                    Features & Facilities
-                  </h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h3 className="text-xl font-bold text-white mb-4">Features & Facilities</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {car.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <span className="text-green-500 text-xl">✓</span>
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
+                      <div key={idx} className="flex items-center gap-3 py-2">
+                        <div className="w-6 h-6 rounded-md bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                          <Check size={14} className="text-orange-500" />
+                        </div>
+                        <span className="text-gray-400 text-sm">{feature}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">
-                    About This Vehicle
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    {car.description}
-                  </p>
+                  <h3 className="text-xl font-bold text-white mb-4">About This Vehicle</h3>
+                  <p className="text-gray-500 leading-relaxed">{car.description}</p>
                 </div>
               </div>
             </div>
@@ -277,12 +248,14 @@ export default function CarDetailPage() {
           {/* Related Cars */}
           {relatedCars.length > 0 && (
             <div className="mt-16">
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">
-                Related Cars in {car.category.toUpperCase()}
+              <h2 className="text-2xl font-bold text-white mb-8">
+                Related Cars in <span className="text-orange-500 capitalize">{car.category}</span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedCars.map((relatedCar) => (
-                  <CarCard key={relatedCar.carId} car={relatedCar} />
+                  <div key={relatedCar.carId} className="[&>div]:w-full">
+                    <CarCard car={relatedCar} />
+                  </div>
                 ))}
               </div>
             </div>

@@ -12,6 +12,7 @@ import ConfirmDialog from '@/components/admin/ConfirmDialog';
 import BookingDetailModal from '@/components/admin/BookingDetailModal';
 import { generateInvoice } from '@/lib/pdfGenerator';
 import { format } from 'date-fns';
+import SkeletonTable from '@/components/ui/SkeletonTable';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -200,10 +201,10 @@ export default function BookingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#0a0a0f]">
         <AdminHeader title="Bookings Management" />
-        <div className="flex items-center justify-center h-64">
-          <p className="text-gray-500">Loading bookings...</p>
+        <div className="p-8 max-w-7xl mx-auto">
+          <SkeletonTable rows={8} />
         </div>
       </div>
     );
