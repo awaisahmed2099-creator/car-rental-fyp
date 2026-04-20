@@ -37,5 +37,9 @@ service cloud.firestore {
       allow create: if true;
       allow read, delete: if isAdminUser();
     }
+
+    match /notifications/{notificationId} {
+      allow read, write: if isAdminUser();
+    }
   }
 }
