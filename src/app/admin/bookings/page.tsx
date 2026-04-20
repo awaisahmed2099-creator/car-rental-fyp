@@ -1,18 +1,33 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { COLLECTIONS } from '@/lib/collections';
-import { Booking } from '@/types';
-import toast from 'react-hot-toast';
-import { Eye, Edit2, Download, Trash2, AlertCircle, Search } from 'lucide-react';
-import AdminHeader from '@/components/admin/AdminHeader';
-import ConfirmDialog from '@/components/admin/ConfirmDialog';
-import BookingDetailModal from '@/components/admin/BookingDetailModal';
-import { generateInvoice } from '@/lib/pdfGenerator';
-import { format } from 'date-fns';
-import SkeletonTable from '@/components/ui/SkeletonTable';
+import React, { useState, useEffect } from "react";
+import {
+  collection,
+  onSnapshot,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { COLLECTIONS } from "@/lib/collections";
+import { Booking } from "@/types";
+import toast from "react-hot-toast";
+import {
+  Eye,
+  Edit2,
+  Download,
+  Trash2,
+  AlertCircle,
+  Search,
+} from "lucide-react";
+import AdminHeader from "@/components/admin/AdminHeader";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
+import BookingDetailModal from "@/components/admin/BookingDetailModal";
+import { generateInvoice } from "@/lib/pdfGenerator";
+import { format } from "date-fns";
+import SkeletonTable from "@/components/ui/SkeletonTable";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -22,11 +37,11 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
 
   // Filter states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [paymentFilter, setPaymentFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [paymentFilter, setPaymentFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
 
   // Modal states
@@ -38,38 +53,46 @@ export default function BookingsPage() {
   // Fetch bookings with real-time updates
   useEffect(() => {
     setLoading(true);
-    const unsubscribe = onSnapshot(collection(db, COLLECTIONS.BOOKINGS), (snapshot) => {
-      const bookingsData: Booking[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        bookingsData.push({
-          bookingId: doc.id,
-          customerName: data.customerName || '',
-          customerPhone: data.customerPhone || '',
-          customerEmail: data.customerEmail || '',
-          customerId: data.customerId || '',
-          carId: data.carId || '',
-          carName: data.carName || '',
-          carImage: data.carImage || '',
-          packageId: data.packageId || '',
-          packageName: data.packageName || '',
-          startDate: data.startDate?.toDate?.() || new Date(data.startDate),
-          endDate: data.endDate?.toDate?.() || new Date(data.endDate),
-          totalDays: data.totalDays || 0,
-          totalAmount: data.totalAmount || 0,
-          paymentMethod: data.paymentMethod || 'cash',
-          paymentStatus: data.paymentStatus || 'pending',
-          txnRefNo: data.txnRefNo || '',
-          bookingStatus: data.bookingStatus || 'confirmed',
-          pickupLocation: data.pickupLocation || '',
-          dropoffLocation: data.dropoffLocation || '',
-          notes: data.notes || '',
-          createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
-        } as Booking);
-      });
-      setBookings(bookingsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      collection(db, COLLECTIONS.BOOKINGS),
+      (snapshot) => {
+        const bookingsData: Booking[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          bookingsData.push({
+            bookingId: doc.id,
+            customerName: data.customerName || "",
+            customerPhone: data.customerPhone || "",
+            customerEmail: data.customerEmail || "",
+            customerId: data.customerId || "",
+            carId: data.carId || "",
+            carName: data.carName || "",
+            carImage: data.carImage || "",
+            packageId: data.packageId || "",
+            packageName: data.packageName || "",
+            startDate: data.startDate?.toDate?.() || new Date(data.startDate),
+            endDate: data.endDate?.toDate?.() || new Date(data.endDate),
+            totalDays: data.totalDays || 0,
+            totalAmount: data.totalAmount || 0,
+            paymentMethod: data.paymentMethod || "cash",
+            paymentStatus: data.paymentStatus || "pending",
+            txnRefNo: data.txnRefNo || "",
+            bookingStatus: data.bookingStatus || "confirmed",
+            pickupLocation: data.pickupLocation || "",
+            dropoffLocation: data.dropoffLocation || "",
+            notes: data.notes || "",
+            createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
+          } as Booking);
+        });
+        setBookings(
+          bookingsData.sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          ),
+        );
+        setLoading(false);
+      },
+    );
 
     return () => unsubscribe();
   }, []);
@@ -83,7 +106,7 @@ export default function BookingsPage() {
       filtered = filtered.filter(
         (b) =>
           b.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          b.customerPhone.includes(searchQuery)
+          b.customerPhone.includes(searchQuery),
       );
     }
 
@@ -98,18 +121,22 @@ export default function BookingsPage() {
     }
 
     // Status filter
-    if (statusFilter !== 'All') {
-      filtered = filtered.filter((b) => b.bookingStatus === statusFilter.toLowerCase());
+    if (statusFilter !== "All") {
+      filtered = filtered.filter(
+        (b) => b.bookingStatus === statusFilter.toLowerCase(),
+      );
     }
 
     // Payment filter
-    if (paymentFilter !== 'All') {
-      if (paymentFilter === 'Paid') {
-        filtered = filtered.filter((b) => b.paymentStatus === 'paid');
-      } else if (paymentFilter === 'Pending') {
-        filtered = filtered.filter((b) => b.paymentStatus === 'pending');
+    if (paymentFilter !== "All") {
+      if (paymentFilter === "Paid") {
+        filtered = filtered.filter((b) => b.paymentStatus === "paid");
+      } else if (paymentFilter === "Pending") {
+        filtered = filtered.filter((b) => b.paymentStatus === "pending");
       } else {
-        filtered = filtered.filter((b) => b.paymentMethod === paymentFilter.toLowerCase());
+        filtered = filtered.filter(
+          (b) => b.paymentMethod === paymentFilter.toLowerCase(),
+        );
       }
     }
 
@@ -119,22 +146,35 @@ export default function BookingsPage() {
 
   // Stats
   const totalBookings = bookings.length;
-  const confirmedCount = bookings.filter((b) => b.bookingStatus === 'confirmed').length;
-  const activeCount = bookings.filter((b) => b.bookingStatus === 'active').length;
-  const completedCount = bookings.filter((b) => b.bookingStatus === 'completed').length;
-  const cancelledCount = bookings.filter((b) => b.bookingStatus === 'cancelled').length;
+  const confirmedCount = bookings.filter(
+    (b) => b.bookingStatus === "confirmed",
+  ).length;
+  const activeCount = bookings.filter(
+    (b) => b.bookingStatus === "active",
+  ).length;
+  const completedCount = bookings.filter(
+    (b) => b.bookingStatus === "completed",
+  ).length;
+  const cancelledCount = bookings.filter(
+    (b) => b.bookingStatus === "cancelled",
+  ).length;
   const thisMonthRevenue = bookings
     .filter((b) => {
       const bookingMonth = new Date(b.createdAt).getMonth();
       const bookingYear = new Date(b.createdAt).getFullYear();
       const today = new Date();
-      return bookingMonth === today.getMonth() && bookingYear === today.getFullYear();
+      return (
+        bookingMonth === today.getMonth() && bookingYear === today.getFullYear()
+      );
     })
     .reduce((sum, b) => sum + b.totalAmount, 0);
 
   // Pagination
   const totalPages = Math.ceil(filteredBookings.length / ITEMS_PER_PAGE);
-  const paginatedBookings = filteredBookings.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   const handleViewClick = (booking: Booking) => {
     setSelectedBooking(booking);
@@ -151,12 +191,12 @@ export default function BookingsPage() {
 
     try {
       await deleteDoc(doc(db, COLLECTIONS.BOOKINGS, bookingToDelete.bookingId));
-      toast.success('Booking deleted successfully');
+      toast.success("Booking deleted successfully");
       setShowDeleteDialog(false);
       setBookingToDelete(null);
     } catch (error) {
-      console.error('Error deleting booking:', error);
-      toast.error('Failed to delete booking');
+      console.error("Error deleting booking:", error);
+      toast.error("Failed to delete booking");
     }
   };
 
@@ -164,38 +204,134 @@ export default function BookingsPage() {
     try {
       generateInvoice(booking);
     } catch (error) {
-      console.error('Error generating invoice:', error);
-      toast.error('Failed to generate invoice');
+      console.error("Error generating invoice:", error);
+      toast.error("Failed to generate invoice");
+    }
+  };
+
+  const handleExportCSV = () => {
+    try {
+      // Helper function to safely format date
+      const getDateString = (date: any): string => {
+        try {
+          const d = date instanceof Date ? date : new Date(date);
+          if (isNaN(d.getTime())) return "";
+          
+          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          const day = String(d.getDate()).padStart(2, "0");
+          const month = months[d.getMonth()];
+          const year = d.getFullYear();
+          
+          return `${day} ${month} ${year}`;
+        } catch {
+          return "";
+        }
+      };
+
+      const getDateTimeString = (date: any): string => {
+        try {
+          const d = date instanceof Date ? date : new Date(date);
+          if (isNaN(d.getTime())) return "";
+          
+          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          const day = String(d.getDate()).padStart(2, "0");
+          const month = months[d.getMonth()];
+          const year = d.getFullYear();
+          const hours = String(d.getHours()).padStart(2, "0");
+          const mins = String(d.getMinutes()).padStart(2, "0");
+          
+          return `${day} ${month} ${year} ${hours}:${mins}`;
+        } catch {
+          return "";
+        }
+      };
+
+      // Helper to escape CSV field
+      const escapeField = (field: any): string => {
+        const str = String(field || "");
+        if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+
+      // Force Excel to treat date/time as text so narrow columns don't render ####.
+      const asExcelText = (value: string): string => {
+        if (!value) return "";
+        return `="${value.replace(/"/g, '""')}"`;
+      };
+
+      // Build CSV manually
+      let csv = "Booking ID,Customer,Car,Start Date,End Date,Days,Amount,Method,Payment Status,Booking Status,Created\n";
+      
+      filteredBookings.forEach((b) => {
+        const startDateText = getDateString(b.startDate);
+        const endDateText = getDateString(b.endDate);
+        const createdAtText = getDateTimeString(b.createdAt);
+
+        const row = [
+          escapeField(b.bookingId),
+          escapeField(b.customerName),
+          escapeField(b.carName),
+          asExcelText(startDateText),
+          asExcelText(endDateText),
+          escapeField(b.totalDays),
+          escapeField(b.totalAmount),
+          escapeField(b.paymentMethod === "jazzcash" ? "JazzCash" : "Cash"),
+          escapeField(b.paymentStatus.charAt(0).toUpperCase() + b.paymentStatus.slice(1)),
+          escapeField(b.bookingStatus.charAt(0).toUpperCase() + b.bookingStatus.slice(1)),
+          asExcelText(createdAtText),
+        ];
+        csv += row.join(",") + "\n";
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+      link.download = `bookings-${dateStr}.csv`;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+      
+      toast.success("CSV exported successfully");
+    } catch (error) {
+      console.error("Error exporting CSV:", error);
+      toast.error("Failed to export CSV");
     }
   };
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case 'confirmed':
-        return 'bg-blue-100 text-blue-800';
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'completed':
-        return 'bg-purple-100 text-purple-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
+      case "confirmed":
+        return "bg-blue-100 text-blue-800";
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "completed":
+        return "bg-purple-100 text-purple-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getPaymentBadgeColor = (status: string) => {
     switch (status) {
-      case 'paid':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
-      case 'refunded':
-        return 'bg-gray-100 text-gray-800';
+      case "paid":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "failed":
+        return "bg-red-100 text-red-800";
+      case "refunded":
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -218,34 +354,48 @@ export default function BookingsPage() {
         {/* Header */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Manage Bookings</h2>
-          <p className="text-gray-600 mt-2">View and manage all customer bookings</p>
+          <p className="text-gray-600 mt-2">
+            View and manage all customer bookings
+          </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-600 text-xs font-medium">Total</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalBookings}</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">
+              {totalBookings}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-600 text-xs font-medium">Confirmed</p>
-            <p className="text-2xl font-bold text-blue-600 mt-1">{confirmedCount}</p>
+            <p className="text-2xl font-bold text-blue-600 mt-1">
+              {confirmedCount}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-600 text-xs font-medium">Active</p>
-            <p className="text-2xl font-bold text-green-600 mt-1">{activeCount}</p>
+            <p className="text-2xl font-bold text-green-600 mt-1">
+              {activeCount}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-600 text-xs font-medium">Completed</p>
-            <p className="text-2xl font-bold text-purple-600 mt-1">{completedCount}</p>
+            <p className="text-2xl font-bold text-purple-600 mt-1">
+              {completedCount}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-600 text-xs font-medium">Cancelled</p>
-            <p className="text-2xl font-bold text-red-600 mt-1">{cancelledCount}</p>
+            <p className="text-2xl font-bold text-red-600 mt-1">
+              {cancelledCount}
+            </p>
           </div>
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-gray-600 text-xs font-medium">Revenue (Month)</p>
-            <p className="text-lg font-bold text-orange-600 mt-1">Rs. {(thisMonthRevenue / 100000).toFixed(1)}L</p>
+            <p className="text-lg font-bold text-orange-600 mt-1">
+              Rs. {(thisMonthRevenue / 100000).toFixed(1)}L
+            </p>
           </div>
         </div>
 
@@ -254,9 +404,14 @@ export default function BookingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Search */}
             <div className="lg:col-span-2">
-              <label className="block text-xs font-medium text-gray-700 mb-1">Search (Name/Phone)</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Search (Name/Phone)
+              </label>
               <div className="relative">
-                <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
+                <Search
+                  size={18}
+                  className="absolute left-3 top-2.5 text-gray-400"
+                />
                 <input
                   type="text"
                   value={searchQuery}
@@ -269,7 +424,9 @@ export default function BookingsPage() {
 
             {/* Start Date */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Start Date
+              </label>
               <input
                 type="date"
                 value={startDate}
@@ -280,7 +437,9 @@ export default function BookingsPage() {
 
             {/* End Date */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">End Date</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                End Date
+              </label>
               <input
                 type="date"
                 value={endDate}
@@ -291,7 +450,9 @@ export default function BookingsPage() {
 
             {/* Status Filter */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Status
+              </label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -307,7 +468,9 @@ export default function BookingsPage() {
 
             {/* Payment Filter */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">Payment</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Payment
+              </label>
               <select
                 value={paymentFilter}
                 onChange={(e) => setPaymentFilter(e.target.value)}
@@ -323,6 +486,18 @@ export default function BookingsPage() {
           </div>
         </div>
 
+        {/* Export Button */}
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+            title="Export to CSV"
+          >
+            <Download size={18} />
+            Export CSV
+          </button>
+        </div>
+
         {/* Bookings Table */}
         {filteredBookings.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
@@ -335,57 +510,99 @@ export default function BookingsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Booking ID</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Customer</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Vehicle</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Dates (Start - End)</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Days</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Amount</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Payment</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Status</th>
-                    <th className="px-6 py-3 text-left font-semibold text-gray-900">Created</th>
-                    <th className="px-6 py-3 text-center font-semibold text-gray-900">Actions</th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Booking ID
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Customer
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Vehicle
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Dates (Start - End)
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Days
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Payment
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-900">
+                      Created
+                    </th>
+                    <th className="px-6 py-3 text-center font-semibold text-gray-900">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {paginatedBookings.map((booking) => (
                     <tr key={booking.bookingId} className="hover:bg-gray-50">
-                      <td className="px-6 py-3 text-gray-900 font-medium">DR-{booking.bookingId.substring(0, 6).toUpperCase()}</td>
+                      <td className="px-6 py-3 text-gray-900 font-medium">
+                        DR-{booking.bookingId.substring(0, 6).toUpperCase()}
+                      </td>
                       <td className="px-6 py-3">
                         <div>
-                          <p className="text-gray-900 font-medium">{booking.customerName}</p>
-                          <p className="text-gray-500 text-xs">{booking.customerPhone}</p>
+                          <p className="text-gray-900 font-medium">
+                            {booking.customerName}
+                          </p>
+                          <p className="text-gray-500 text-xs">
+                            {booking.customerPhone}
+                          </p>
                         </div>
                       </td>
                       <td className="px-6 py-3">
                         <p className="text-gray-900">{booking.carName}</p>
-                        {booking.packageName && <p className="text-gray-500 text-xs">{booking.packageName}</p>}
+                        {booking.packageName && (
+                          <p className="text-gray-500 text-xs">
+                            {booking.packageName}
+                          </p>
+                        )}
                       </td>
                       <td className="px-6 py-3 text-gray-900 whitespace-nowrap">
-                        {format(new Date(booking.startDate), 'dd MMM')} - {format(new Date(booking.endDate), 'dd MMM')}
+                        {format(new Date(booking.startDate), "dd MMM yyyy")} -{" "}
+                        {format(new Date(booking.endDate), "dd MMM yyyy")}
                       </td>
-                      <td className="px-6 py-3 text-gray-900">{booking.totalDays}</td>
-                      <td className="px-6 py-3 text-gray-900 font-semibold">Rs. {booking.totalAmount.toLocaleString()}</td>
+                      <td className="px-6 py-3 text-gray-900">
+                        {booking.totalDays}
+                      </td>
+                      <td className="px-6 py-3 text-gray-900 font-semibold">
+                        Rs. {booking.totalAmount.toLocaleString()}
+                      </td>
                       <td className="px-6 py-3">
                         <span
                           className={`text-xs font-semibold px-2 py-1 rounded-full flex w-fit ${getPaymentBadgeColor(
-                            booking.paymentStatus
+                            booking.paymentStatus,
                           )}`}
                         >
-                          {booking.paymentMethod === 'cash' ? 'Cash' : 'JazzCash'} - {booking.paymentStatus}
+                          {booking.paymentMethod === "cash"
+                            ? "Cash"
+                            : "JazzCash"}{" "}
+                          - {booking.paymentStatus}
                         </span>
                       </td>
                       <td className="px-6 py-3">
                         <span
                           className={`text-xs font-semibold px-3 py-1 rounded-full flex w-fit ${getStatusBadgeColor(
-                            booking.bookingStatus
+                            booking.bookingStatus,
                           )}`}
                         >
-                          {booking.bookingStatus.charAt(0).toUpperCase() + booking.bookingStatus.slice(1)}
+                          {booking.bookingStatus.charAt(0).toUpperCase() +
+                            booking.bookingStatus.slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-3 text-gray-900 whitespace-nowrap text-xs">
-                        {format(new Date(booking.createdAt), 'dd MMM yyyy')}
+                        {format(
+                          new Date(booking.createdAt),
+                          "dd MMM yyyy HH:mm",
+                        )}
                       </td>
                       <td className="px-6 py-3 text-center">
                         <div className="flex gap-2 justify-center">
@@ -428,19 +645,25 @@ export default function BookingsPage() {
                 >
                   Previous
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-4 py-2 rounded-lg ${
-                      currentPage === page ? 'bg-orange-500 text-white' : 'border border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-2 rounded-lg ${
+                        currentPage === page
+                          ? "bg-orange-500 text-white"
+                          : "border border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                 >
@@ -454,7 +677,10 @@ export default function BookingsPage() {
 
       {/* Modals */}
       {showDetailModal && selectedBooking && (
-        <BookingDetailModal booking={selectedBooking} onClose={() => setShowDetailModal(false)} />
+        <BookingDetailModal
+          booking={selectedBooking}
+          onClose={() => setShowDetailModal(false)}
+        />
       )}
       <ConfirmDialog
         isOpen={showDeleteDialog}
