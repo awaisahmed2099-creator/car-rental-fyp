@@ -234,7 +234,7 @@ export default function SettingsPage() {
                 type="tel"
                 value={companyInfo.phoneNumber}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, phoneNumber: e.target.value })}
-                placeholder="+92 300 1234567"
+                placeholder=" "
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
@@ -246,7 +246,7 @@ export default function SettingsPage() {
                 type="tel"
                 value={companyInfo.whatsappNumber}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, whatsappNumber: e.target.value })}
-                placeholder="+92 300 1234567"
+                placeholder=" "
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
@@ -258,7 +258,7 @@ export default function SettingsPage() {
                 type="email"
                 value={companyInfo.email}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, email: e.target.value })}
-                placeholder="contact@driveease.com"
+                placeholder=" "
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
@@ -270,7 +270,7 @@ export default function SettingsPage() {
                 type="text"
                 value={companyInfo.address}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, address: e.target.value })}
-                placeholder="123 Main Street"
+                placeholder=" "
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
@@ -282,7 +282,7 @@ export default function SettingsPage() {
                 type="text"
                 value={companyInfo.city}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, city: e.target.value })}
-                placeholder="Islamabad"
+                placeholder=" "
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
@@ -294,7 +294,7 @@ export default function SettingsPage() {
                 type="text"
                 value={companyInfo.workingHours}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, workingHours: e.target.value })}
-                placeholder="8:00 AM - 10:00 PM"
+                placeholder=" "
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
@@ -305,7 +305,7 @@ export default function SettingsPage() {
               <textarea
                 value={companyInfo.websiteTagline}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, websiteTagline: e.target.value })}
-                placeholder="Your trusted car rental partner..."
+                placeholder=" "
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
               />

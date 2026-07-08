@@ -110,8 +110,9 @@ export default function Footer() {
               © {currentYear} DriveEase. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
-              <a href="#" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</a>
-              <a href="#" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Terms of Service</a>
+              <Link href="/privacy-policy" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Terms of Service</Link>
+              <Link href="/refund-policy" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Refund Policy</Link>
             </div>
           </div>
         </div>
