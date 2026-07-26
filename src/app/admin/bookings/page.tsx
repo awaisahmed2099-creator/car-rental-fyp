@@ -76,7 +76,8 @@ export default function BookingsPage() {
             totalAmount: data.totalAmount || 0,
             paymentMethod: data.paymentMethod || "cash",
             paymentStatus: data.paymentStatus || "pending",
-            txnRefNo: data.txnRefNo || "",
+            txnRefNo: data.txnRefNo || data.paddleTransactionId || "",
+            paddleTransactionId: data.paddleTransactionId || "",
             bookingStatus: data.bookingStatus || "confirmed",
             pickupLocation: data.pickupLocation || "",
             dropoffLocation: data.dropoffLocation || "",
@@ -277,7 +278,13 @@ export default function BookingsPage() {
           asExcelText(endDateText),
           escapeField(b.totalDays),
           escapeField(b.totalAmount),
-          escapeField(b.paymentMethod === "jazzcash" ? "JazzCash" : "Cash"),
+          escapeField(
+            b.paymentMethod === "jazzcash"
+              ? "JazzCash"
+              : b.paymentMethod === "paddle"
+                ? "Paddle"
+                : "Cash",
+          ),
           escapeField(b.paymentStatus.charAt(0).toUpperCase() + b.paymentStatus.slice(1)),
           escapeField(b.bookingStatus.charAt(0).toUpperCase() + b.bookingStatus.slice(1)),
           asExcelText(createdAtText),
@@ -479,6 +486,7 @@ export default function BookingsPage() {
                 <option>All</option>
                 <option>Cash</option>
                 <option>JazzCash</option>
+                <option>Paddle</option>
                 <option>Paid</option>
                 <option>Pending</option>
               </select>
@@ -584,7 +592,9 @@ export default function BookingsPage() {
                         >
                           {booking.paymentMethod === "cash"
                             ? "Cash"
-                            : "JazzCash"}{" "}
+                            : booking.paymentMethod === "paddle"
+                              ? "Paddle"
+                              : "JazzCash"}{" "}
                           - {booking.paymentStatus}
                         </span>
                       </td>

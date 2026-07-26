@@ -6,13 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:currency": "node scripts/check-currency.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
     "@paddle/paddle-js": "^1.6.4",
+    "@paddle/paddle-node-sdk": "^3.8.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.12.0",
+    "firebase-admin": "^14.2.0",
     "framer-motion": "^12.38.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",

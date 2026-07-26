@@ -31,7 +31,7 @@ export interface BookingData {
   customerName: string;
   customerPhone: string;
   customerEmail: string;
-  paymentMethod: 'cash' | 'jazzcash';
+  paymentMethod: 'cash' | 'jazzcash' | 'paddle';
   paymentStatus?: 'pending' | 'paid' | 'failed';
 }
 

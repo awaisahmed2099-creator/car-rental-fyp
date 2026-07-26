@@ -192,7 +192,13 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
               </div>
               <div>
                 <p className="text-gray-600">Payment Method</p>
-                <p className="text-gray-900 font-medium">{booking.paymentMethod === 'cash' ? 'Cash Payment' : 'JazzCash'}</p>
+                <p className="text-gray-900 font-medium">
+                  {booking.paymentMethod === "cash"
+                    ? "Cash Payment"
+                    : booking.paymentMethod === "paddle"
+                      ? "Card (Paddle)"
+                      : "JazzCash"}
+                </p>
               </div>
               <div>
                 <p className="text-gray-600">Payment Status</p>
@@ -200,10 +206,16 @@ export default function BookingDetailModal({ booking, onClose }: BookingDetailMo
                   {booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
                 </span>
               </div>
-              {booking.txnRefNo && (
+              {(booking.paddleTransactionId || booking.txnRefNo) && (
                 <div>
-                  <p className="text-gray-600">Transaction ID</p>
-                  <p className="text-gray-900 font-medium">{booking.txnRefNo}</p>
+                  <p className="text-gray-600">
+                    {booking.paymentMethod === "paddle"
+                      ? "Paddle Transaction"
+                      : "Transaction ID"}
+                  </p>
+                  <p className="text-gray-900 font-medium font-mono text-xs break-all">
+                    {booking.paddleTransactionId || booking.txnRefNo}
+                  </p>
                 </div>
               )}
             </div>

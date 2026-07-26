@@ -53,9 +53,10 @@ export interface Booking {
   endDate: Date;
   totalDays: number;
   totalAmount: number;
-  paymentMethod: 'cash' | 'jazzcash';
+  paymentMethod: 'cash' | 'jazzcash' | 'paddle';
   paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
-  txnRefNo?: string; // JazzCash transaction ID
+  txnRefNo?: string; // JazzCash / Paddle transaction ID
+  paddleTransactionId?: string;
   bookingStatus: 'confirmed' | 'active' | 'completed' | 'cancelled';
   pickupLocation: string;
   dropoffLocation: string;

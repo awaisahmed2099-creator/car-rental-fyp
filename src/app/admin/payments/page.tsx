@@ -90,7 +90,8 @@ export default function PaymentsPage() {
           totalAmount: data.totalAmount || 0,
           paymentMethod: data.paymentMethod || "cash",
           paymentStatus: data.paymentStatus || "pending",
-          txnRefNo: data.txnRefNo || "",
+          txnRefNo: data.txnRefNo || data.paddleTransactionId || "",
+          paddleTransactionId: data.paddleTransactionId || "",
           bookingStatus: data.bookingStatus || "confirmed",
           pickupLocation: data.pickupLocation || "",
           dropoffLocation: data.dropoffLocation || "",
@@ -170,6 +171,9 @@ export default function PaymentsPage() {
     (b) => b.paymentMethod === "jazzcash",
   ).length;
   const cashCount = bookings.filter((b) => b.paymentMethod === "cash").length;
+  const paddleCount = bookings.filter(
+    (b) => b.paymentMethod === "paddle",
+  ).length;
 
   // Generate chart data (last 30 days)
   const generateChartData = (): ChartData[] => {
@@ -266,9 +270,15 @@ export default function PaymentsPage() {
           escapeField(b.customerName),
           escapeField(b.carName),
           escapeField(b.totalAmount),
-          escapeField(b.paymentMethod === "jazzcash" ? "JazzCash" : "Cash"),
+          escapeField(
+            b.paymentMethod === "jazzcash"
+              ? "JazzCash"
+              : b.paymentMethod === "paddle"
+                ? "Paddle"
+                : "Cash",
+          ),
           escapeField(b.paymentStatus.charAt(0).toUpperCase() + b.paymentStatus.slice(1)),
-          escapeField(b.txnRefNo || ""),
+          escapeField(b.paddleTransactionId || b.txnRefNo || ""),
           asExcelText(createdAtText),
         ];
         csv += row.join(",") + "\n";
@@ -307,6 +317,13 @@ export default function PaymentsPage() {
       return (
         <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold">
           JazzCash
+        </span>
+      );
+    }
+    if (method === "paddle") {
+      return (
+        <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+          Card (Paddle)
         </span>
       );
     }
@@ -413,6 +430,20 @@ export default function PaymentsPage() {
             </div>
           </div>
 
+          {/* Paddle Card Payments */}
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-gray-600 text-sm font-medium">
+                  Card (Paddle)
+                </p>
+                <p className="text-2xl font-bold text-gray-900 mt-2">
+                  {paddleCount}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Cash Payments */}
           <div className="bg-white rounded-lg shadow p-6 border-l-4 border-emerald-500">
             <div className="flex justify-between items-start">
@@ -459,6 +490,7 @@ export default function PaymentsPage() {
             >
               <option value="All">All Methods</option>
               <option value="JazzCash">JazzCash Only</option>
+              <option value="Paddle">Card (Paddle)</option>
               <option value="Cash">Cash Only</option>
             </select>
 
@@ -583,9 +615,12 @@ export default function PaymentsPage() {
                         {getPaymentStatusBadge(booking.paymentStatus)}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {booking.paymentMethod === "jazzcash" ? (
+                        {booking.paymentMethod === "jazzcash" ||
+                        booking.paymentMethod === "paddle" ? (
                           <code className="bg-gray-100 px-2 py-1 rounded font-mono text-xs">
-                            {booking.txnRefNo || "N/A"}
+                            {booking.paddleTransactionId ||
+                              booking.txnRefNo ||
+                              "N/A"}
                           </code>
                         ) : (
                           "N/A"

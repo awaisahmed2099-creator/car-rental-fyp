@@ -147,6 +147,84 @@ function BookingContent() {
     }
   };
 
+  const handlePaddlePayment = async () => {
+    if (!customerData || !startDate || !endDate || !car) return;
+    try {
+      setLoadingPayment(true);
+      const bookingData = {
+        carId: car.carId,
+        carName: car.name,
+        carImage: car.images?.[0] || '',
+        packageId: package_?.packageId,
+        packageName: package_?.name,
+        startDate,
+        endDate,
+        totalDays: differenceInDays(endDate, startDate) || 1,
+        totalAmount: amount,
+        pickupLocation: customerData.pickupLocation,
+        dropoffLocation: customerData.dropoffLocation,
+        notes: customerData.notes,
+        customerName: customerData.customerName,
+        customerPhone: customerData.customerPhone,
+        customerEmail: customerData.customerEmail,
+        paymentMethod: 'paddle' as const,
+        paymentStatus: 'pending' as const,
+      };
+      const bookingId = await createBooking(bookingData);
+
+      const createRes = await fetch('/api/paddle/create-transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId }),
+      });
+      const createData = await createRes.json().catch(() => ({}));
+      if (!createRes.ok) {
+        throw new Error(createData.error || 'Failed to start card payment');
+      }
+
+      const transactionId = createData.transactionId as string;
+      if (!transactionId) {
+        throw new Error('Missing Paddle transaction ID');
+      }
+
+      const { getPaddle, resetPaddle } = await import('@/lib/paddle');
+      resetPaddle();
+      const paddle = await getPaddle({
+        eventCallback: async (event: { name?: string; data?: { id?: string } }) => {
+          if (event.name !== 'checkout.completed') return;
+          const txnId = event.data?.id || transactionId;
+          try {
+            const verifyRes = await fetch('/api/paddle/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ transactionId: txnId, bookingId }),
+            });
+            const verifyData = await verifyRes.json().catch(() => ({}));
+            if (!verifyRes.ok) {
+              throw new Error(verifyData.error || 'Could not verify payment');
+            }
+            toast.success('Payment successful!');
+            router.push(`/booking/success?bookingId=${bookingId}`);
+          } catch (err) {
+            console.error('Paddle verify failed:', err);
+            toast.error(err instanceof Error ? err.message : 'Verification failed');
+            setLoadingPayment(false);
+          }
+        },
+      });
+
+      if (!paddle) {
+        throw new Error('Paddle failed to initialize');
+      }
+
+      paddle.Checkout.open({ transactionId });
+    } catch (error) {
+      console.error('Error initiating Paddle payment:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to start card payment');
+      setLoadingPayment(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
@@ -216,7 +294,7 @@ function BookingContent() {
           <div className="lg:col-span-2 lg:order-1">
             <div className="card-dark p-6 sm:p-8">
               {step === 'details' && <CustomerDetailsForm onContinue={handleContinueToPayment} loading={bookingLoading} />}
-              {step === 'payment' && customerData && <PaymentMethodSelector amount={amount} onCashSelect={handleCashPayment} onJazzCashSelect={handleJazzCashPayment} onBack={handleBackToDetails} loading={loadingPayment} jazzcashEnabled={jazzcashEnabled} />}
+              {step === 'payment' && customerData && <PaymentMethodSelector amount={amount} onCashSelect={handleCashPayment} onJazzCashSelect={handleJazzCashPayment} onPaddleSelect={handlePaddlePayment} onBack={handleBackToDetails} loading={loadingPayment} jazzcashEnabled={jazzcashEnabled} />}
             </div>
           </div>
         </div>

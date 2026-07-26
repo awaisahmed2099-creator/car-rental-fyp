@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Banknote, Smartphone, ChevronLeft } from 'lucide-react';
+import { Banknote, Smartphone, CreditCard, ChevronLeft } from 'lucide-react';
+import { formatUsdCents, pkrToUsdCents } from '@/lib/currency';
 
 interface PaymentMethodSelectorProps {
   amount: number;
   onCashSelect: () => void;
   onJazzCashSelect?: () => void;
+  onPaddleSelect?: () => void;
   onBack: () => void;
   loading?: boolean;
   jazzcashEnabled?: boolean;
@@ -16,14 +18,20 @@ export default function PaymentMethodSelector({
   amount,
   onCashSelect,
   onJazzCashSelect,
+  onPaddleSelect,
   onBack,
   loading = false,
   jazzcashEnabled = false,
 }: PaymentMethodSelectorProps) {
-  const [selectedMethod, setSelectedMethod] = useState<'cash' | 'jazzcash' | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<
+    'cash' | 'jazzcash' | 'paddle' | null
+  >(null);
+
+  const usdLabel = formatUsdCents(pkrToUsdCents(amount));
 
   const handleSelectCash = () => setSelectedMethod('cash');
   const handleSelectJazzCash = () => setSelectedMethod('jazzcash');
+  const handleSelectPaddle = () => setSelectedMethod('paddle');
 
   const handleConfirmCash = () => {
     if (selectedMethod === 'cash') onCashSelect();
@@ -33,9 +41,12 @@ export default function PaymentMethodSelector({
     if (selectedMethod === 'jazzcash' && onJazzCashSelect) onJazzCashSelect();
   };
 
+  const handleConfirmPaddle = () => {
+    if (selectedMethod === 'paddle' && onPaddleSelect) onPaddleSelect();
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header and Back Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 pb-6 border-b border-[#2a2a3a]">
         <div>
           <h2 className="text-xl font-bold text-white mb-2">Payment Details</h2>
@@ -50,9 +61,39 @@ export default function PaymentMethodSelector({
         </button>
       </div>
 
-      {/* Payment Methods */}
       <div className="space-y-4">
-        {/* Cash Payment Card */}
+        <button
+          onClick={handleSelectPaddle}
+          disabled={loading}
+          type="button"
+          className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
+            selectedMethod === 'paddle'
+              ? 'border-orange-500 bg-orange-500/5'
+              : 'border-[#2a2a3a] bg-[#1a1a24] hover:border-[#3a3a4a] hover:bg-[#2a2a3a]'
+          } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+        >
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-xl transition-colors ${
+              selectedMethod === 'paddle' ? 'bg-orange-500 text-white' : 'bg-white/5 text-gray-400'
+            }`}>
+              <CreditCard size={24} />
+            </div>
+            <div className="flex-1">
+              <h3 className={`text-base font-semibold mb-1 transition-colors ${
+                selectedMethod === 'paddle' ? 'text-white' : 'text-gray-300'
+              }`}>Card / Apple Pay / Google Pay</h3>
+              <p className="text-xs text-gray-500">Pay {usdLabel} securely via Paddle (sandbox)</p>
+            </div>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
+              selectedMethod === 'paddle' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
+            }`}>
+              {selectedMethod === 'paddle' && (
+                <div className="w-2 h-2 rounded-full bg-[#111118]" />
+              )}
+            </div>
+          </div>
+        </button>
+
         <button
           onClick={handleSelectCash}
           disabled={loading}
@@ -75,7 +116,6 @@ export default function PaymentMethodSelector({
               }`}>Cash on Delivery</h3>
               <p className="text-xs text-gray-500">Pay directly when you receive the vehicle</p>
             </div>
-            {/* Radio indicator */}
             <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
               selectedMethod === 'cash' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
             }`}>
@@ -86,7 +126,6 @@ export default function PaymentMethodSelector({
           </div>
         </button>
 
-        {/* JazzCash Payment Card */}
         {jazzcashEnabled && (
           <button
             onClick={handleSelectJazzCash}
@@ -110,7 +149,6 @@ export default function PaymentMethodSelector({
                 }`}>JazzCash</h3>
                 <p className="text-xs text-gray-500">Pay securely via digital wallet</p>
               </div>
-              {/* Radio indicator */}
               <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
                 selectedMethod === 'jazzcash' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
               }`}>
@@ -123,12 +161,22 @@ export default function PaymentMethodSelector({
         )}
       </div>
 
-      {/* Action Area */}
       <div className="pt-6 mt-6 border-t border-[#2a2a3a]">
         <div className="bg-[#1a1a24] border border-[#2a2a3a] rounded-xl p-6 text-center mb-6">
           <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Total to Pay</p>
           <p className="text-4xl font-bold text-orange-500">PKR {amount.toLocaleString()}</p>
+          <p className="text-sm text-gray-400 mt-2">Card charge ≈ {usdLabel} (280 PKR = $1)</p>
         </div>
+
+        {selectedMethod === 'paddle' && (
+          <button
+            onClick={handleConfirmPaddle}
+            disabled={loading}
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
+          >
+            {loading ? 'Opening checkout...' : `Pay ${usdLabel} by Card`}
+          </button>
+        )}
 
         {selectedMethod === 'cash' && (
           <button
@@ -160,7 +208,6 @@ export default function PaymentMethodSelector({
         )}
       </div>
 
-      {/* Security Note */}
       <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
