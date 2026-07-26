@@ -190,14 +190,13 @@ function BookingContent() {
       const { getPaddle, resetPaddle } = await import('@/lib/paddle');
       resetPaddle();
       const paddle = await getPaddle({
-        eventCallback: async (event: { name?: string; data?: { id?: string } }) => {
+        eventCallback: async (event: { name?: string }) => {
           if (event.name !== 'checkout.completed') return;
-          const txnId = event.data?.id || transactionId;
           try {
             const verifyRes = await fetch('/api/paddle/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ transactionId: txnId, bookingId }),
+              body: JSON.stringify({ transactionId, bookingId }),
             });
             const verifyData = await verifyRes.json().catch(() => ({}));
             if (!verifyRes.ok) {
