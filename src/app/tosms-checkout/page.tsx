@@ -5,8 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { initializePaddle, type Paddle } from '@paddle/paddle-js';
 
 /**
- * Hosted on the Paddle-approved domain (car-rental-fyp-nine.vercel.app)
- * so TOSMS mobile can open checkout even when the admin API runs on a LAN IP.
+ * Hosted on the Paddle-approved domain (car-rental-fyp-nine.vercel.app).
+ * On success it fulfills the fee via the TOSMS admin API, then deep-links back.
  */
 function TosmsCheckoutInner() {
   const searchParams = useSearchParams();
@@ -15,9 +15,15 @@ function TosmsCheckoutInner() {
 
   const transactionId = searchParams.get('_ptxn');
   const returnUrlParam = searchParams.get('returnUrl');
+  const apiBaseParam = searchParams.get('apiBase');
 
   const returnUrl = useMemo(() => {
-    if (returnUrlParam && returnUrlParam.startsWith('tosms://')) {
+    if (
+      returnUrlParam &&
+      (returnUrlParam.startsWith('tosms://') ||
+        returnUrlParam.startsWith('exp://') ||
+        returnUrlParam.startsWith('http'))
+    ) {
       return returnUrlParam;
     }
     return 'tosms://payment-return';
@@ -25,6 +31,29 @@ function TosmsCheckoutInner() {
 
   useEffect(() => {
     let cancelled = false;
+
+    async function fulfill(txnId: string): Promise<boolean> {
+      if (!apiBaseParam) {
+        console.warn('No apiBase — skipping server fulfill');
+        return false;
+      }
+      try {
+        const res = await fetch(`${apiBaseParam}/api/paddle/fulfill`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transactionId: txnId }),
+        });
+        const data: unknown = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          console.error('Fulfill failed', data);
+          return false;
+        }
+        return true;
+      } catch (err) {
+        console.error('Fulfill network error', err);
+        return false;
+      }
+    }
 
     async function boot() {
       const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
@@ -43,23 +72,32 @@ function TosmsCheckoutInner() {
           environment: 'sandbox',
           token,
           eventCallback(event) {
-            if (event.name === 'checkout.completed') {
-              const id =
-                (event.data &&
-                  typeof event.data === 'object' &&
-                  'id' in event.data &&
-                  typeof event.data.id === 'string' &&
-                  event.data.id) ||
-                transactionId;
-              setStatus('Payment successful. Returning to TOSMS…');
-              window.location.href = `${returnUrl}?transactionId=${encodeURIComponent(id)}`;
-            }
-            if (event.name === 'checkout.closed') {
-              setStatus('Checkout closed. You can return to the app.');
-            }
-            if (event.name === 'checkout.error') {
-              setError('Checkout failed. Please try again from the app.');
-            }
+            void (async () => {
+              if (event.name === 'checkout.completed') {
+                const id =
+                  (event.data &&
+                    typeof event.data === 'object' &&
+                    'id' in event.data &&
+                    typeof event.data.id === 'string' &&
+                    event.data.id) ||
+                  transactionId;
+
+                setStatus('Payment successful. Saving record…');
+                const saved = await fulfill(id);
+                setStatus(
+                  saved
+                    ? 'Saved. Returning to TOSMS…'
+                    : 'Paid, but save may need a moment. Returning…',
+                );
+                window.location.href = `${returnUrl}?transactionId=${encodeURIComponent(id)}`;
+              }
+              if (event.name === 'checkout.closed') {
+                setStatus('Checkout closed. You can return to the app.');
+              }
+              if (event.name === 'checkout.error') {
+                setError('Checkout failed. Please try again from the app.');
+              }
+            })();
           },
         });
 
@@ -78,7 +116,7 @@ function TosmsCheckoutInner() {
     return () => {
       cancelled = true;
     };
-  }, [transactionId, returnUrl]);
+  }, [transactionId, returnUrl, apiBaseParam]);
 
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center px-6">
