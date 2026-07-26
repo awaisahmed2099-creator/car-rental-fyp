@@ -10,21 +10,20 @@ function extractTxnId(value: unknown): string | null {
 }
 
 /**
- * Hosted on the Paddle-approved domain (car-rental-fyp-nine.vercel.app).
- * Always fulfills with the `_ptxn` transaction id (never checkout event `.id`).
+ * Checkout UI only. Firestore fulfillment is done server-side by the admin
+ * auto-poller (and optionally Paddle webhooks) — this page must never call
+ * fulfill, so users never see API errors in the browser.
  */
 function TosmsCheckoutInner() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState('Preparing secure checkout…');
 
-  // Paddle may put the id on _ptxn; we also accept txn from query if present
   const knownTxnId =
     extractTxnId(searchParams.get('_ptxn')) ||
     extractTxnId(searchParams.get('transactionId'));
 
   const returnUrlParam = searchParams.get('returnUrl');
-  const apiBaseParam = searchParams.get('apiBase');
 
   const returnUrl = useMemo(() => {
     if (
@@ -40,36 +39,6 @@ function TosmsCheckoutInner() {
 
   useEffect(() => {
     let cancelled = false;
-
-    async function fulfill(txnId: string): Promise<{ ok: boolean; error?: string }> {
-      if (!apiBaseParam) {
-        return { ok: false, error: 'Missing apiBase' };
-      }
-      try {
-        const res = await fetch(`${apiBaseParam}/api/paddle/fulfill`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transactionId: txnId }),
-        });
-        const data: unknown = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          const message =
-            typeof data === 'object' &&
-            data !== null &&
-            'error' in data &&
-            typeof data.error === 'string'
-              ? data.error
-              : `Fulfill failed (${res.status})`;
-          return { ok: false, error: message };
-        }
-        return { ok: true };
-      } catch (err) {
-        return {
-          ok: false,
-          error: err instanceof Error ? err.message : 'Network error',
-        };
-      }
-    }
 
     async function boot() {
       const token = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
@@ -88,46 +57,16 @@ function TosmsCheckoutInner() {
           environment: 'sandbox',
           token,
           eventCallback(event) {
-            void (async () => {
-              if (event.name !== 'checkout.completed') {
-                if (event.name === 'checkout.closed') {
-                  setStatus('Checkout closed. You can return to the app.');
-                }
-                if (event.name === 'checkout.error') {
-                  setError('Checkout failed. Please try again from the app.');
-                }
-                return;
-              }
-
-              // Prefer known _ptxn id — event.data.id is often NOT a txn_ id
-              const fromEvent =
-                event.data && typeof event.data === 'object'
-                  ? extractTxnId(
-                      'transaction_id' in event.data
-                        ? event.data.transaction_id
-                        : 'transactionId' in event.data
-                          ? event.data.transactionId
-                          : 'id' in event.data
-                            ? event.data.id
-                            : null,
-                    )
-                  : null;
-
-              const txnId = knownTxnId || fromEvent;
-              if (!txnId) {
-                setError('Payment succeeded but transaction id was missing.');
-                return;
-              }
-
-              setStatus('Payment successful. Saving record…');
-              const result = await fulfill(txnId);
-              setStatus(
-                result.ok
-                  ? 'Saved. Returning to TOSMS…'
-                  : `Paid. Save deferred (${result.error || 'unknown'}). Returning…`,
-              );
-              window.location.href = `${returnUrl}?transactionId=${encodeURIComponent(txnId)}`;
-            })();
+            if (event.name === 'checkout.completed') {
+              setStatus('Payment successful. Returning to TOSMS…');
+              window.location.href = `${returnUrl}?transactionId=${encodeURIComponent(knownTxnId)}`;
+            }
+            if (event.name === 'checkout.closed') {
+              setStatus('Checkout closed. You can return to the app.');
+            }
+            if (event.name === 'checkout.error') {
+              setError('Checkout failed. Please try again from the app.');
+            }
           },
         });
 
@@ -146,7 +85,7 @@ function TosmsCheckoutInner() {
     return () => {
       cancelled = true;
     };
-  }, [knownTxnId, returnUrl, apiBaseParam]);
+  }, [knownTxnId, returnUrl]);
 
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center px-6">
