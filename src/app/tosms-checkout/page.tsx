@@ -4,16 +4,25 @@ import { useEffect, useMemo, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { initializePaddle, type Paddle } from '@paddle/paddle-js';
 
+function extractTxnId(value: unknown): string | null {
+  if (typeof value === 'string' && value.startsWith('txn_')) return value;
+  return null;
+}
+
 /**
  * Hosted on the Paddle-approved domain (car-rental-fyp-nine.vercel.app).
- * On success it fulfills the fee via the TOSMS admin API, then deep-links back.
+ * Always fulfills with the `_ptxn` transaction id (never checkout event `.id`).
  */
 function TosmsCheckoutInner() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState('Preparing secure checkout…');
 
-  const transactionId = searchParams.get('_ptxn');
+  // Paddle may put the id on _ptxn; we also accept txn from query if present
+  const knownTxnId =
+    extractTxnId(searchParams.get('_ptxn')) ||
+    extractTxnId(searchParams.get('transactionId'));
+
   const returnUrlParam = searchParams.get('returnUrl');
   const apiBaseParam = searchParams.get('apiBase');
 
@@ -32,10 +41,9 @@ function TosmsCheckoutInner() {
   useEffect(() => {
     let cancelled = false;
 
-    async function fulfill(txnId: string): Promise<boolean> {
+    async function fulfill(txnId: string): Promise<{ ok: boolean; error?: string }> {
       if (!apiBaseParam) {
-        console.warn('No apiBase — skipping server fulfill');
-        return false;
+        return { ok: false, error: 'Missing apiBase' };
       }
       try {
         const res = await fetch(`${apiBaseParam}/api/paddle/fulfill`, {
@@ -45,13 +53,21 @@ function TosmsCheckoutInner() {
         });
         const data: unknown = await res.json().catch(() => ({}));
         if (!res.ok) {
-          console.error('Fulfill failed', data);
-          return false;
+          const message =
+            typeof data === 'object' &&
+            data !== null &&
+            'error' in data &&
+            typeof data.error === 'string'
+              ? data.error
+              : `Fulfill failed (${res.status})`;
+          return { ok: false, error: message };
         }
-        return true;
+        return { ok: true };
       } catch (err) {
-        console.error('Fulfill network error', err);
-        return false;
+        return {
+          ok: false,
+          error: err instanceof Error ? err.message : 'Network error',
+        };
       }
     }
 
@@ -62,7 +78,7 @@ function TosmsCheckoutInner() {
         return;
       }
 
-      if (!transactionId) {
+      if (!knownTxnId) {
         setError('Missing transaction. Open checkout from the TOSMS app.');
         return;
       }
@@ -73,37 +89,51 @@ function TosmsCheckoutInner() {
           token,
           eventCallback(event) {
             void (async () => {
-              if (event.name === 'checkout.completed') {
-                const id =
-                  (event.data &&
-                    typeof event.data === 'object' &&
-                    'id' in event.data &&
-                    typeof event.data.id === 'string' &&
-                    event.data.id) ||
-                  transactionId;
+              if (event.name !== 'checkout.completed') {
+                if (event.name === 'checkout.closed') {
+                  setStatus('Checkout closed. You can return to the app.');
+                }
+                if (event.name === 'checkout.error') {
+                  setError('Checkout failed. Please try again from the app.');
+                }
+                return;
+              }
 
-                setStatus('Payment successful. Saving record…');
-                const saved = await fulfill(id);
-                setStatus(
-                  saved
-                    ? 'Saved. Returning to TOSMS…'
-                    : 'Paid, but save may need a moment. Returning…',
-                );
-                window.location.href = `${returnUrl}?transactionId=${encodeURIComponent(id)}`;
+              // Prefer known _ptxn id — event.data.id is often NOT a txn_ id
+              const fromEvent =
+                event.data && typeof event.data === 'object'
+                  ? extractTxnId(
+                      'transaction_id' in event.data
+                        ? event.data.transaction_id
+                        : 'transactionId' in event.data
+                          ? event.data.transactionId
+                          : 'id' in event.data
+                            ? event.data.id
+                            : null,
+                    )
+                  : null;
+
+              const txnId = knownTxnId || fromEvent;
+              if (!txnId) {
+                setError('Payment succeeded but transaction id was missing.');
+                return;
               }
-              if (event.name === 'checkout.closed') {
-                setStatus('Checkout closed. You can return to the app.');
-              }
-              if (event.name === 'checkout.error') {
-                setError('Checkout failed. Please try again from the app.');
-              }
+
+              setStatus('Payment successful. Saving record…');
+              const result = await fulfill(txnId);
+              setStatus(
+                result.ok
+                  ? 'Saved. Returning to TOSMS…'
+                  : `Paid. Save deferred (${result.error || 'unknown'}). Returning…`,
+              );
+              window.location.href = `${returnUrl}?transactionId=${encodeURIComponent(txnId)}`;
             })();
           },
         });
 
         if (cancelled || !paddle) return;
         setStatus('Opening Paddle checkout…');
-        paddle.Checkout.open({ transactionId });
+        paddle.Checkout.open({ transactionId: knownTxnId });
       } catch (err) {
         console.error('Paddle checkout init failed:', err);
         if (!cancelled) {
@@ -116,7 +146,7 @@ function TosmsCheckoutInner() {
     return () => {
       cancelled = true;
     };
-  }, [transactionId, returnUrl, apiBaseParam]);
+  }, [knownTxnId, returnUrl, apiBaseParam]);
 
   return (
     <main className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center px-6">
