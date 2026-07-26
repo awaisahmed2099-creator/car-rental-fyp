@@ -3,6 +3,17 @@ import autoTable from 'jspdf-autotable';
 import { Booking } from '@/types';
 import { format } from 'date-fns';
 
+function formatBookingPaymentMethod(method: Booking['paymentMethod']): string {
+  if (method === 'cash') return 'Cash';
+  if (method === 'paddle') return 'Card (Paddle)';
+  if (method === 'jazzcash') return 'JazzCash';
+  return String(method);
+}
+
+function bookingTxnId(booking: Booking): string {
+  return booking.paddleTransactionId || booking.txnRefNo || '';
+}
+
 export function generateInvoice(booking: Booking): void {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -114,12 +125,16 @@ export function generateInvoice(booking: Booking): void {
 
   const amountData: [string, string][] = [
     ['Total Amount', `Rs. ${booking.totalAmount.toLocaleString()}`],
-    ['Payment Method', booking.paymentMethod === 'cash' ? 'Cash' : 'JazzCash'],
+    ['Payment Method', formatBookingPaymentMethod(booking.paymentMethod)],
     ['Payment Status', booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)],
   ];
 
-  if (booking.txnRefNo) {
-    amountData.push(['Transaction ID', booking.txnRefNo]);
+  const txnId = bookingTxnId(booking);
+  if (txnId) {
+    amountData.push([
+      booking.paymentMethod === 'paddle' ? 'Paddle Transaction' : 'Transaction ID',
+      txnId,
+    ]);
   }
 
   autoTable(doc, {
@@ -287,7 +302,7 @@ export function generateBookingReceipt(booking: Booking): void {
     },
     {
       label: 'Payment Method',
-      value: booking.paymentMethod === 'cash' ? 'Cash Payment' : 'JazzCash',
+      value: formatBookingPaymentMethod(booking.paymentMethod),
       isBold: false,
     },
     {
@@ -296,6 +311,15 @@ export function generateBookingReceipt(booking: Booking): void {
       isBold: true,
     },
   ];
+
+  const receiptTxnId = bookingTxnId(booking);
+  if (receiptTxnId) {
+    priceDetails.splice(2, 0, {
+      label: booking.paymentMethod === 'paddle' ? 'Paddle Transaction' : 'Transaction ID',
+      value: receiptTxnId,
+      isBold: false,
+    });
+  }
 
   priceDetails.forEach((detail) => {
     if (detail.isBold) {

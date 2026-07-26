@@ -237,8 +237,14 @@ function BookingSuccessContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-[#1a1a24] p-5 rounded-xl border border-[#2a2a3a] mb-6">
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Method</p>
-                  <p className="font-medium text-white capitalize">
-                    {booking.paymentMethod === 'cash' ? 'Cash on Delivery' : 'JazzCash'}
+                  <p className="font-medium text-white">
+                    {booking.paymentMethod === 'cash' && 'Cash on Delivery'}
+                    {booking.paymentMethod === 'paddle' && 'Card (Paddle)'}
+                    {booking.paymentMethod === 'jazzcash' && 'JazzCash'}
+                    {booking.paymentMethod !== 'cash' &&
+                      booking.paymentMethod !== 'paddle' &&
+                      booking.paymentMethod !== 'jazzcash' &&
+                      booking.paymentMethod}
                   </p>
                 </div>
                 <div>
@@ -264,10 +270,14 @@ function BookingSuccessContent() {
               </div>
 
               {/* Transaction ID */}
-              {booking.txnRefNo && (
+              {(booking.paddleTransactionId || booking.txnRefNo) && (
                 <div className="mt-4 flex justify-between items-center bg-[#1a1a24] p-4 rounded-xl border border-[#2a2a3a]">
-                  <p className="text-sm text-gray-500">Transaction Ref</p>
-                  <p className="font-mono font-medium text-white border border-[#2a2a3a] px-2 py-1 rounded bg-[#111118]">{booking.txnRefNo}</p>
+                  <p className="text-sm text-gray-500">
+                    {booking.paymentMethod === 'paddle' ? 'Paddle Transaction' : 'Transaction Ref'}
+                  </p>
+                  <p className="font-mono font-medium text-white border border-[#2a2a3a] px-2 py-1 rounded bg-[#111118]">
+                    {booking.paddleTransactionId || booking.txnRefNo}
+                  </p>
                 </div>
               )}
             </div>
