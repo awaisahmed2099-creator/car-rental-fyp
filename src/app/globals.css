@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #0a0a0f;
   --foreground: #f0f0f5;
@@ -56,26 +58,7 @@ body {
 }
 
 /* ============ GLOBAL FORM STYLES ============ */
-input, select, textarea {
-  color: #f0f0f5;
-  background-color: var(--surface-light);
-  border-color: var(--border);
-}
-
-option {
-  background-color: var(--surface-light);
-  color: #f0f0f5;
-}
-
-input::placeholder, textarea::placeholder {
-  color: #6b7280;
-  opacity: 1;
-}
-
-input[type="date"] {
-  color: #f0f0f5;
-  color-scheme: dark;
-}
+/* Removed hardcoded dark styles to allow Tailwind's light/dark mode classes to work */
 
 button:disabled {
   cursor: not-allowed;
@@ -203,4 +186,9 @@ html {
 .no-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* ============ FIREBASE RECAPTCHA ============ */
+.grecaptcha-badge { 
+  visibility: hidden !important; 
 }

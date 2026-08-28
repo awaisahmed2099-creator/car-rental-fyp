@@ -77,11 +77,11 @@ export default function AdminSetupContent() {
         <div className="w-full max-w-md">
           <div className="bg-slate-700 rounded-lg shadow-2xl p-8">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 Drive<span className="text-orange-500">Ease</span>
               </h1>
               <p className="text-red-400 text-sm mt-4">Setup token not configured</p>
-              <p className="text-gray-400 text-xs mt-2">Add NEXT_PUBLIC_ADMIN_SETUP_TOKEN to .env.local</p>
+              <p className="text-gray-600 dark:text-gray-400 text-xs mt-2">Add NEXT_PUBLIC_ADMIN_SETUP_TOKEN to .env.local</p>
             </div>
           </div>
         </div>
@@ -95,10 +95,10 @@ export default function AdminSetupContent() {
         <div className="w-full max-w-md">
           <div className="bg-slate-700 rounded-lg shadow-2xl p-8">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 Drive<span className="text-orange-500">Ease</span>
               </h1>
-              <p className="text-gray-300">Admin Setup</p>
+              <p className="text-gray-700 dark:text-gray-300">Admin Setup</p>
             </div>
 
             <form onSubmit={handleVerifyToken} className="space-y-4">
@@ -111,7 +111,7 @@ export default function AdminSetupContent() {
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
                   required
-                  className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Enter setup token"
                 />
               </div>
@@ -140,10 +140,10 @@ export default function AdminSetupContent() {
       <div className="w-full max-w-md">
         <div className="bg-slate-700 rounded-lg shadow-2xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Drive<span className="text-orange-500">Ease</span>
             </h1>
-            <p className="text-gray-300">Create Admin Account</p>
+            <p className="text-gray-700 dark:text-gray-300">Create Admin Account</p>
           </div>
 
           <form onSubmit={handleCreateAdmin} className="space-y-5">
@@ -156,7 +156,7 @@ export default function AdminSetupContent() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="John Doe"
               />
             </div>
@@ -170,7 +170,7 @@ export default function AdminSetupContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="admin@driveease.com"
               />
             </div>
@@ -184,7 +184,7 @@ export default function AdminSetupContent() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-4 py-2 rounded-lg bg-slate-600 border border-slate-500 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="••••••••"
               />
             </div>

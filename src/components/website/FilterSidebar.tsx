@@ -102,10 +102,10 @@ export default function FilterSidebar({
               <button
                 key={cat.value}
                 onClick={() => handleCategoryChange(cat.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer ${
                   isActive
                     ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
-                    : 'bg-[#1a1a24] text-gray-400 hover:text-white border border-[#2a2a3a] hover:border-orange-500/50'
+                    : 'bg-[#1a1a24] text-gray-400 hover:text-white border border-[#2a2a3a] hover:bg-[#2a2a3a] hover:border-orange-500/50'
                 }`}
               >
                 {cat.label}
@@ -125,10 +125,10 @@ export default function FilterSidebar({
               <button
                 key={trans.value}
                 onClick={() => handleTransmissionChange(trans.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer ${
                   isActive
                     ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
-                    : 'bg-[#1a1a24] text-gray-400 hover:text-white border border-[#2a2a3a] hover:border-orange-500/50'
+                    : 'bg-[#1a1a24] text-gray-400 hover:text-white border border-[#2a2a3a] hover:bg-[#2a2a3a] hover:border-orange-500/50'
                 }`}
               >
                 {trans.label}
@@ -183,10 +183,10 @@ export default function FilterSidebar({
               <button
                 key={seat.value}
                 onClick={() => handleSeatsChange(seat.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 cursor-pointer ${
                   isActive
                     ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
-                    : 'bg-[#1a1a24] text-gray-400 hover:text-white border border-[#2a2a3a] hover:border-orange-500/50'
+                    : 'bg-[#1a1a24] text-gray-400 hover:text-white border border-[#2a2a3a] hover:bg-[#2a2a3a] hover:border-orange-500/50'
                 }`}
               >
                 {seat.label}
@@ -200,7 +200,7 @@ export default function FilterSidebar({
       <div className="pt-4 border-t border-[#2a2a3a]">
         <button
           onClick={onClearFilters}
-          className="w-full bg-[#1a1a24] hover:bg-[#2a2a3a] text-white border border-[#2a2a3a] font-semibold py-3 px-4 rounded-xl transition-colors duration-300 text-sm"
+          className="w-full bg-orange-500 hover:bg-orange-600 text-white border-none font-semibold py-3 px-4 rounded-xl transition-colors duration-300 text-sm cursor-pointer"
         >
           Clear All Filters
         </button>

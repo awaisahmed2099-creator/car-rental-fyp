@@ -15,28 +15,21 @@ export interface CloudinaryUploadResponse {
 /**
  * Upload image to Cloudinary
  * @param file - File object to upload
- * @param folder - Cloudinary folder path (e.g., 'cars')
  * @returns Promise with download URL
  */
-export async function uploadToCloudinary(
-  file: File,
-  folder: string = 'driveease'
-): Promise<string> {
+export const uploadToCloudinary = async (file: File): Promise<string> => {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
   if (!cloudName || !uploadPreset) {
-    throw new Error(
-      'Cloudinary configuration missing. Please set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET in .env.local'
-    );
+    throw new Error('Cloudinary configuration missing. Check .env.local');
   }
 
+  // STRICTLY for unsigned uploads: ONLY append file and upload_preset.
+  // DO NOT append api_key, timestamp, or signature.
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', uploadPreset);
-  formData.append('folder', folder);
-
-  console.log(`[CLOUDINARY] Uploading ${file.name} to folder: ${folder}`);
 
   try {
     const response = await fetch(
@@ -48,36 +41,31 @@ export async function uploadToCloudinary(
     );
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error('[CLOUDINARY] Upload failed:', error);
-      throw new Error(
-        `Cloudinary upload failed: ${error.error?.message || 'Unknown error'}`
-      );
+      const errorData = await response.json();
+      console.error('[CLOUDINARY-ERROR-DETAILS]:', errorData);
+      throw new Error(errorData.error?.message || 'Upload failed');
     }
 
-    const data = (await response.json()) as CloudinaryUploadResponse;
-    console.log(`[CLOUDINARY] Upload successful: ${data.secure_url}`);
-
+    const data = await response.json();
     return data.secure_url;
-  } catch (error) {
-    console.error('[CLOUDINARY] Error uploading image:', error);
-    throw error;
+  } catch (error: any) {
+    console.error('Error in uploadToCloudinary:', error);
+    throw new Error(`Cloudinary upload failed: ${error.message}`);
   }
-}
+};
 
 /**
  * Batch upload multiple images to Cloudinary
  */
 export async function uploadMultipleToCloudinary(
   files: File[],
-  folder: string = 'driveease',
   onProgress?: (current: number, total: number) => void
 ): Promise<string[]> {
   const urls: string[] = [];
 
   for (let i = 0; i < files.length; i++) {
     try {
-      const url = await uploadToCloudinary(files[i], folder);
+      const url = await uploadToCloudinary(files[i]);
       urls.push(url);
 
       if (onProgress) {

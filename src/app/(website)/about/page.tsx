@@ -74,7 +74,7 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="relative rounded-2xl overflow-hidden aspect-[4/3] group"
+            className="relative rounded-2xl overflow-hidden aspect-[4/3] group hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg transition-all duration-300 border border-transparent"
           >
             <Image
               src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=1200&h=900&fit=crop"
@@ -88,9 +88,9 @@ export default function AboutPage() {
             
             {/* Floating Badge */}
             <div className="absolute bottom-6 left-6 right-6">
-              <div className="bg-[#1a1a24]/80 backdrop-blur-md border border-[#2a2a3a] rounded-xl p-5 shadow-2xl flex items-center gap-4">
-                <div className="w-12 h-12 bg-orange-500/10 rounded-full flex flex-shrink-0 items-center justify-center border border-orange-500/20">
-                  <Star size={24} className="text-orange-500 fill-orange-500" />
+              <div className="bg-[#1a1a24]/80 backdrop-blur-md border border-[#2a2a3a] rounded-xl p-5 shadow-2xl flex items-center gap-4 group hover:-translate-y-1 hover:border-orange-500 hover:shadow-md transition-all duration-300 cursor-default">
+                <div className="w-12 h-12 bg-orange-500/10 text-orange-500 rounded-full flex flex-shrink-0 items-center justify-center border border-orange-500/20 group-hover:bg-orange-500 group-hover:text-black hover:bg-orange-500 hover:text-black transition-colors duration-300">
+                  <Star size={24} className="fill-current" />
                 </div>
                 <div>
                   <p className="text-lg font-bold text-white leading-tight">Premium Car Rentals</p>
@@ -148,7 +148,7 @@ export default function AboutPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   viewport={{ once: true }}
-                  className="card-dark p-8 text-center group hover-lift"
+                  className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-8 text-center group hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300 cursor-default"
                 >
                   <div className="flex justify-center mb-5">
                     <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
@@ -183,10 +183,10 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 viewport={{ once: true }}
-                className="card-dark p-8 text-center group hover-lift"
+                className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-8 text-center group hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300 cursor-default"
               >
                 <div className="text-4xl font-bold text-orange-500 mb-2">{achievement.number}</div>
-                <div className="text-sm text-gray-500">{achievement.label}</div>
+                <div className="text-sm text-white">{achievement.label}</div>
               </motion.div>
             ))}
           </div>
@@ -221,7 +221,7 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
                 viewport={{ once: true }}
-                className="flex items-center gap-3 bg-white/[0.02] border border-[#2a2a3a] rounded-xl px-5 py-4"
+                className="flex items-center gap-3 bg-white/[0.02] border border-[#2a2a3a] rounded-xl px-5 py-4 hover:-translate-y-1 hover:border-orange-500 hover:shadow-md transition-all duration-300 cursor-default"
               >
                 <div className="w-6 h-6 rounded-md bg-orange-500/10 flex items-center justify-center flex-shrink-0">
                   <CheckCircle className="w-4 h-4 text-orange-500" />

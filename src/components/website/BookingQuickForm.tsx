@@ -31,7 +31,7 @@ export default function BookingQuickForm() {
   const inputClasses = "w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all text-sm";
 
   return (
-    <div className="glass rounded-2xl p-8 w-full max-w-sm">
+    <div className="glass rounded-2xl p-5 sm:p-8 w-full max-w-sm mx-auto">
       <div className="mb-6">
         <p className="text-orange-500 text-xs font-semibold uppercase tracking-[0.2em] mb-1">Quick Search</p>
         <h3 className="text-xl font-bold text-white">Book Your Ride</h3>

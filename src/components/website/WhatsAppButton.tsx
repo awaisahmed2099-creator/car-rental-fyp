@@ -55,7 +55,7 @@ export default function WhatsAppButton() {
 
       <button 
         onClick={handleWhatsAppClick}
-        className="relative group focus:outline-none"
+        className="relative group focus:outline-none cursor-pointer"
       >
         <div className="absolute -inset-1 bg-green-500/20 rounded-full animate-ping opacity-75 group-hover:bg-green-500/40" />
         <div className="relative w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/25 transition-all duration-200 hover:scale-110 active:scale-95">

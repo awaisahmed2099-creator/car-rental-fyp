@@ -1,12 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle, ChevronDown, MessageCircle } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, ChevronDown, MessageCircle, Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/collections';
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import dynamic from 'next/dynamic';
+
+const ViewLeafletMap = dynamic(() => import('@/components/admin/ViewLeafletMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-[#111118]">
+      <div className="animate-spin w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full"></div>
+    </div>
+  )
+});
 
 interface CompanyInfo {
   companyName: string;
@@ -17,6 +27,8 @@ interface CompanyInfo {
   city: string;
   workingHours: string;
   websiteTagline: string;
+  mapEmbedUrl?: string;
+  companyLocation?: { address: string; lat: number; lng: number } | null;
 }
 
 interface FAQItem {
@@ -35,6 +47,7 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [isFetchingInfo, setIsFetchingInfo] = useState(true);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
   // Fetch company info
@@ -47,6 +60,8 @@ export default function ContactPage() {
         }
       } catch (error) {
         console.error('Error fetching company info:', error);
+      } finally {
+        setIsFetchingInfo(false);
       }
     };
     fetchCompanyInfo();
@@ -71,18 +86,26 @@ export default function ContactPage() {
     try {
       setLoading(true);
       
-      await addDoc(collection(db, COLLECTIONS.SETTINGS, 'messages', 'messages'), {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        subject: formData.subject,
-        message: formData.message,
-        createdAt: serverTimestamp(),
-        read: false
+      await addDoc(collection(db, 'messages'), {
+        ...formData,
+        createdAt: new Date(),
+        status: 'unread'
       });
+
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
       
       setSubmitted(true);
-      toast.success('Message sent successfully! We\'ll get back to you soon.');
+      toast.success('Your message has been sent successfully!');
       
       setTimeout(() => {
         setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
@@ -105,11 +128,16 @@ export default function ContactPage() {
     { question: 'What if there\'s an accident or damage?', answer: 'All our vehicles are insured. In case of damage, customers are responsible for the insurance excess (typically 10-15% of vehicle value). Our team will guide you through the claims process.' },
   ];
 
+  const getFallback = (value: string | undefined, fallback: string) => {
+    if (isFetchingInfo) return 'Loading...';
+    return value || fallback;
+  };
+
   const contactInfo = [
-    { icon: MapPin, title: 'Address', details: [companyInfo?.address || 'Rawalpindi', companyInfo?.city || 'Islamabad, Pakistan'] },
-    { icon: Phone, title: 'Phone', details: [companyInfo?.phoneNumber || '+92 51 XXXX XXXX'] },
-    { icon: Mail, title: 'Email', details: [companyInfo?.email || 'contact@driveease.pk'] },
-    { icon: Clock, title: 'Working Hours', details: [companyInfo?.workingHours || 'Mon - Fri: 9:00 AM - 6:00 PM', 'Sat: 10:00 AM - 4:00 PM'] },
+    { icon: MapPin, title: 'Address', details: [getFallback(companyInfo?.address, 'Rawalpindi'), getFallback(companyInfo?.city, 'Islamabad, Pakistan')] },
+    { icon: Phone, title: 'Phone', details: [getFallback(companyInfo?.phoneNumber, '+92 51 XXXX XXXX')] },
+    { icon: Mail, title: 'Email', details: [getFallback(companyInfo?.email, 'contact@driveease.pk')] },
+    { icon: Clock, title: 'Working Hours', details: [getFallback(companyInfo?.workingHours, 'Mon - Fri: 9:00 AM - 6:00 PM'), isFetchingInfo ? 'Loading...' : 'Sat: 10:00 AM - 4:00 PM'] },
   ];
 
   const inputClasses = "w-full px-4 py-3 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all text-sm";
@@ -145,7 +173,7 @@ export default function ContactPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   viewport={{ once: true }}
-                  className="card-dark p-6 text-center group hover-lift"
+                  className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-6 text-center group hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300"
                 >
                   <div className="flex justify-center mb-4">
                     <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
@@ -170,7 +198,7 @@ export default function ContactPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="card-dark p-8 md:p-12"
+              className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-8 md:p-12 hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg transition-all duration-300"
             >
               <div className="text-center mb-8">
                 <p className="text-orange-500 text-sm font-semibold uppercase tracking-[0.2em] mb-2">Send a Message</p>
@@ -213,14 +241,19 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <label htmlFor="subject" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">Subject</label>
-                      <select id="subject" name="subject" value={formData.subject} onChange={handleChange} className={inputClasses}>
-                        <option value="">Select a subject</option>
-                        <option value="booking">Booking Inquiry</option>
-                        <option value="support">Technical Support</option>
-                        <option value="complaint">Complaint</option>
-                        <option value="feedback">Feedback</option>
-                        <option value="other">Other</option>
-                      </select>
+                      <div className="relative">
+                        <select id="subject" name="subject" value={formData.subject} onChange={handleChange} className={`${inputClasses} appearance-none cursor-pointer pr-10 peer`}>
+                          <option value="">Select a subject</option>
+                          <option value="booking">Booking Inquiry</option>
+                          <option value="support">Technical Support</option>
+                          <option value="complaint">Complaint</option>
+                          <option value="feedback">Feedback</option>
+                          <option value="other">Other</option>
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 peer-hover:text-orange-500 transition-colors">
+                          <ChevronDown size={18} />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -234,7 +267,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-orange-500/20"
+                    className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-orange-500/20 cursor-pointer"
                   >
                     <Send size={16} />
                     {loading ? 'Sending...' : 'Send Message'}
@@ -253,17 +286,26 @@ export default function ContactPage() {
             <p className="text-orange-500 text-sm font-semibold uppercase tracking-[0.2em] mb-2">Location</p>
             <h2 className="text-2xl font-bold text-white">Find Us on Map</h2>
           </div>
-          <div className="rounded-2xl overflow-hidden border border-[#2a2a3a] h-96">
-            <iframe
-              width="100%"
-              height="100%"
-              frameBorder="0"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3318.9151245088487!2d72.73912332346945!3d33.57457032277856!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38dfc15cf779b2ed%3A0x70ccc1e5bc9c8b80!2sRawalpindi%2C%20Punjab%2C%20Pakistan!5e0!3m2!1sen!2s!4v1700000000000"
-              style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+          <div className="rounded-2xl overflow-hidden border border-[#2a2a3a] h-96 bg-[#111118] relative z-0">
+            {companyInfo?.companyLocation?.address && (
+              <div className="absolute top-4 left-4 z-[400] bg-[#111118] rounded-xl shadow-lg p-3 pr-4 flex items-center gap-4 max-w-[80%] border border-[#2a2a3a]">
+                <p className="text-sm font-semibold text-white line-clamp-2">
+                  {companyInfo.companyLocation.address}
+                </p>
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${companyInfo.companyLocation.lat},${companyInfo.companyLocation.lng}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 bg-orange-500 hover:bg-orange-600 text-gray-800 hover:text-black p-2.5 rounded-full transition-colors duration-300 shadow-md cursor-pointer group"
+                >
+                  <Navigation size={18} />
+                </a>
+              </div>
+            )}
+            <ViewLeafletMap 
+              lat={companyInfo?.companyLocation?.lat || 33.6844} 
+              lng={companyInfo?.companyLocation?.lng || 73.0479} 
+            />
           </div>
         </div>
       </section>
@@ -284,7 +326,7 @@ export default function ContactPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: idx * 0.05 }}
                 viewport={{ once: true }}
-                className="card-dark overflow-hidden"
+                className="bg-[#111118] border border-[#2a2a3a] rounded-2xl overflow-hidden group hover:-translate-y-1 hover:border-orange-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
               >
                 <button
                   onClick={() => setExpandedFAQ(expandedFAQ === idx ? null : idx)}
@@ -293,8 +335,8 @@ export default function ContactPage() {
                   <h3 className="font-medium text-white text-sm pr-4">{faq.question}</h3>
                   <ChevronDown
                     size={18}
-                    className={`text-orange-500 flex-shrink-0 transition-transform duration-300 ${
-                      expandedFAQ === idx ? 'rotate-180' : ''
+                    className={`text-gray-500 group-hover:text-orange-500 flex-shrink-0 transition-all duration-300 cursor-pointer ${
+                      expandedFAQ === idx ? 'rotate-180 text-orange-500' : ''
                     }`}
                   />
                 </button>

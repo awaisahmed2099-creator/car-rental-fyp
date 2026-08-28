@@ -176,38 +176,20 @@ const handleCheckout = async () => {
           <div className="mt-10 flex flex-col items-center gap-3">
 
             <div
-              className="inline-flex rounded-2xl p-1"
-              style={{
-                background: '#0F172A',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
+              className="inline-flex rounded-2xl p-1 bg-[#0F172A] border border-white/10"
             >
-
               <button
                 onClick={() => setYearly(false)}
-                className="rounded-xl px-6 py-2.5 text-sm font-semibold"
-                style={
-                  !yearly
-                    ? { background:'#F97316', color:'#fff' }
-                    : { color:'#64748B' }
-                }
+                className={`rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer transition-colors ${!yearly ? 'bg-orange-500 text-white' : 'text-[#64748B] hover:bg-orange-500/10 hover:text-orange-500'}`}
               >
                 Monthly
               </button>
-
-
               <button
                 onClick={() => setYearly(true)}
-                className="rounded-xl px-6 py-2.5 text-sm font-semibold"
-                style={
-                  yearly
-                    ? { background:'#F97316', color:'#fff' }
-                    : { color:'#64748B' }
-                }
+                className={`rounded-xl px-6 py-2.5 text-sm font-semibold cursor-pointer transition-colors ${yearly ? 'bg-orange-500 text-white' : 'text-[#64748B] hover:bg-orange-500/10 hover:text-orange-500'}`}
               >
                 Yearly
               </button>
-
             </div>
 
           </div>
@@ -222,11 +204,7 @@ const handleCheckout = async () => {
           {/* FREE CARD */}
 
           <article
-            className="relative rounded-3xl p-8 transition-all duration-300"
-            style={{
-              background:'#0F172A',
-              border:'1px solid rgba(255,255,255,0.07)',
-            }}
+            className="relative rounded-3xl p-8 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg flex flex-col h-full bg-[#0F172A] border border-white/10"
           >
 
             <div className="mb-8">
@@ -234,12 +212,9 @@ const handleCheckout = async () => {
               <div className="flex items-center gap-3 mb-4">
 
                 <div
-                  className="flex h-9 w-9 items-center justify-center rounded-xl"
-                  style={{
-                    background:'rgba(100,116,139,0.15)'
-                  }}
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/10"
                 >
-                  <Shield size={16} style={{color:'#94A3B8'}} />
+                  <Shield size={16} className="text-orange-500" />
                 </div>
 
 
@@ -260,7 +235,7 @@ const handleCheckout = async () => {
 
               <div className="flex items-end gap-1 mt-6">
 
-                <span className="text-5xl font-bold text-white">
+                <span className="text-5xl font-bold text-orange-500">
                   $0
                 </span>
 
@@ -302,15 +277,9 @@ const handleCheckout = async () => {
 
 
             <button
-              className="w-full rounded-2xl py-3.5 text-sm font-semibold"
-              style={{
-                border:'1px solid rgba(255,255,255,0.12)',
-                color:'#CBD5E1'
-              }}
+              className="mt-auto w-full bg-orange-500 hover:bg-orange-600 text-white cursor-pointer transition-colors duration-300 rounded-lg py-3 font-semibold"
             >
-
               Get Started Free
-
             </button>
 
 
@@ -324,13 +293,8 @@ const handleCheckout = async () => {
 
 
           <article
-            className="relative rounded-3xl p-8"
-            style={{
-              background:'#0F172A',
-              border:'1.5px solid #F97316',
-              boxShadow:
-              '0 0 60px -10px rgba(249,115,22,0.25)'
-            }}
+            className="relative rounded-3xl p-8 flex flex-col h-full transition-all duration-300 hover:-translate-y-2 hover:shadow-lg bg-[#0F172A] border-[1.5px] border-orange-500"
+            style={{ boxShadow: '0 0 60px -10px rgba(249,115,22,0.25)' }}
           >
 
 
@@ -471,20 +435,10 @@ const handleCheckout = async () => {
 
 
             <button
-
               onClick={handleCheckout}
-
-              className="w-full rounded-2xl py-3.5 text-sm font-bold"
-
-              style={{
-                background:'#F97316',
-                color:'#fff'
-              }}
-
+              className="mt-auto w-full bg-orange-500 hover:bg-orange-600 text-white cursor-pointer transition-colors duration-300 rounded-lg py-3 font-semibold"
             >
-
               Start Free Trial
-
             </button>
 
 
@@ -525,11 +479,7 @@ const handleCheckout = async () => {
 
               <article
                 key={item.q}
-                className="rounded-2xl p-6"
-                style={{
-                  background:'#0F172A',
-                  border:'1px solid rgba(255,255,255,0.06)'
-                }}
+                className="rounded-2xl p-6 bg-[#0F172A] border border-white/10 hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300 cursor-default"
               >
 
 

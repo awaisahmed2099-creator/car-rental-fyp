@@ -88,8 +88,8 @@ export function generateInvoice(booking: Booking): void {
   }
 
   bookingDetails.push(
-    ['Pickup Location', booking.pickupLocation],
-    ['Dropoff Location', booking.dropoffLocation]
+    ['Pickup Location', typeof booking.pickupLocation === 'string' ? booking.pickupLocation : booking.pickupLocation?.address || 'N/A'],
+    ['Dropoff Location', typeof booking.dropoffLocation === 'string' ? booking.dropoffLocation : booking.dropoffLocation?.address || 'N/A']
   );
 
   autoTable(doc, {
@@ -264,11 +264,11 @@ export function generateBookingReceipt(booking: Booking): void {
     },
     {
       label: 'Pickup Location',
-      value: booking.pickupLocation,
+      value: typeof booking.pickupLocation === 'string' ? booking.pickupLocation : booking.pickupLocation?.address || 'N/A',
     },
     {
       label: 'Dropoff Location',
-      value: booking.dropoffLocation,
+      value: typeof booking.dropoffLocation === 'string' ? booking.dropoffLocation : booking.dropoffLocation?.address || 'N/A',
     },
   ];
 

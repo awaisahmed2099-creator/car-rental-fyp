@@ -54,7 +54,7 @@ export default function PackageCard({ pkg, priority = false }: PackageCardProps)
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5 }}
-      className="group card-dark overflow-hidden hover-lift flex flex-col h-full w-full"
+      className="group card-dark overflow-hidden flex flex-col h-full w-full border border-transparent hover:-translate-y-2 hover:!border-orange-500 hover:shadow-lg transition-all duration-300 cursor-pointer"
     >
       {/* Image Carousel */}
       <div className="relative aspect-video bg-[#1a1a24] overflow-hidden">
@@ -65,6 +65,7 @@ export default function PackageCard({ pkg, priority = false }: PackageCardProps)
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           priority={priority}
           className="object-cover group-hover:scale-105 transition-transform duration-500"
+          unoptimized
         />
 
         {/* Gradient overlay */}
@@ -124,52 +125,31 @@ export default function PackageCard({ pkg, priority = false }: PackageCardProps)
       {/* Content */}
       <div className="p-5 flex flex-col flex-grow">
         {/* Name */}
-        <h3 className="text-lg font-bold text-white mb-1 group-hover:text-orange-400 transition-colors">
+        <h3 className="text-xl font-bold text-white mb-1 group-hover:text-orange-400 transition-colors">
           {pkg.name}
         </h3>
 
-        {/* Duration */}
-        {pkg.duration && (
-          <p className="text-xs text-gray-500 mb-3">
-            Duration: <span className="text-gray-400 font-medium">{pkg.duration}</span>
-          </p>
-        )}
-
-        {/* Description */}
-        <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">
-          {pkg.description}
-        </p>
-
-        {/* Features */}
-        <div className="mb-4 space-y-1.5">
-          {pkg.features.slice(0, 3).map((feature, idx) => (
-            <div key={idx} className="flex items-start gap-2 text-sm text-gray-400">
-              <Check size={14} className="text-orange-500 flex-shrink-0 mt-0.5" />
-              <span>{feature}</span>
-            </div>
-          ))}
-          {pkg.features.length > 3 && (
-            <p className="text-xs text-gray-600 font-medium">
-              +{pkg.features.length - 3} more features
-            </p>
-          )}
+        {/* Cars Included (Details) */}
+        <div className="mb-4 mt-2">
+          <p className="text-gray-400 text-sm mb-2">Cars Included</p>
+          <div className="flex flex-wrap gap-1 sm:gap-2">
+            {pkg.cars.map((car, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center px-2 py-1 rounded text-[11px] font-medium bg-[#1a1a24] text-orange-500 border border-orange-500/30 whitespace-nowrap shadow-sm"
+              >
+                {car.quantity}x {car.carName}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {/* Included Cars Composition */}
-        {pkg.cars && pkg.cars.length > 0 ? (
-          <div className="text-xs text-gray-400 mb-4 font-medium bg-white/5 border border-[#2a2a3a] p-2.5 rounded-lg">
-            <span className="text-orange-500 font-semibold">{totalVehicles} Vehicle{totalVehicles !== 1 ? 's' : ''}:</span>{' '}
-            {getCompositionSummary()}
-          </div>
-        ) : (
-          <p className="text-xs text-gray-600 mb-4 font-medium">No cars included</p>
-        )}
-
         {/* Price */}
-        <div className="mb-4 pb-4 border-b border-[#2a2a3a] mt-auto">
+        <div className="mb-4 pb-4 border-b border-[#2a2a3a]">
+          <p className="text-gray-400 text-xs font-medium mb-1">Price/Day</p>
           {pkg.discount > 0 ? (
             <div className="flex items-baseline gap-2">
-              <span className="text-xl font-bold text-white">
+              <span className="text-orange-500 font-bold text-2xl">
                 PKR {discountedPrice.toLocaleString()}
               </span>
               <span className="text-sm line-through text-gray-600">
@@ -177,19 +157,50 @@ export default function PackageCard({ pkg, priority = false }: PackageCardProps)
               </span>
             </div>
           ) : (
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl font-bold text-white">
-                PKR {pkg.pricePerDay.toLocaleString()}
-              </span>
-              <span className="text-xs text-gray-500">/day</span>
-            </div>
+            <p className="text-orange-500 font-bold text-2xl">
+              PKR {pkg.pricePerDay.toLocaleString()}
+            </p>
           )}
         </div>
 
-        {/* Book Button */}
+        {/* Description */}
+        {pkg.description && (
+          <div className="mb-4 pb-4 border-b border-[#2a2a3a] relative group/desc">
+            <p className="text-sm text-gray-400 line-clamp-3 cursor-help">
+              {pkg.description}
+            </p>
+            {/* Custom Tooltip */}
+            <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover/desc:opacity-100 invisible group-hover/desc:visible transition-all duration-200 w-[110%] p-3 bg-gray-800 border border-gray-700 shadow-xl rounded-lg z-50 pointer-events-none">
+              <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed">
+                {pkg.description}
+              </p>
+              {/* Tooltip Arrow */}
+              <div className="absolute -bottom-2 left-4 w-4 h-4 bg-gray-800 border-b border-r border-gray-700 transform rotate-45"></div>
+            </div>
+          </div>
+        )}
+
+        {/* Features Chips */}
+        {pkg.features && pkg.features.length > 0 && (
+          <div className="mb-6 pb-6 border-b border-[#2a2a3a]">
+            <p className="text-xs font-semibold text-white uppercase tracking-wider mb-2">Features</p>
+            <div className="flex flex-wrap gap-1 sm:gap-2">
+              {pkg.features.map((feature, idx) => (
+                <span
+                  key={idx}
+                  className="px-2 py-1 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-md text-xs font-medium"
+                >
+                  {feature}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* View Package Button */}
         <Link
           href={`/packages/${pkg.packageId}`}
-          className="block w-full text-center py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-300 bg-white/5 border border-[#2a2a3a] text-white hover:bg-orange-500 hover:border-orange-500"
+          className="block w-full text-center py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-300 bg-white/5 border border-[#2a2a3a] text-white hover:bg-orange-500 hover:border-orange-500 mt-auto"
         >
           View Package
         </Link>

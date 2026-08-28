@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Users, Zap, Fuel, Calendar, Check } from 'lucide-react';
+import { Settings, Tag, Calendar, MapPin, Users, Fuel, Zap, Check, Shield, Clock, HelpCircle, Star } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -15,7 +15,8 @@ import SkeletonCard from '@/components/ui/SkeletonCard';
 
 export default function CarDetailPage() {
   const params = useParams();
-  const carId = params.carId as string;
+  const rawCarId = params.carId as string;
+  const carId = rawCarId ? decodeURIComponent(rawCarId).trim() : '';
 
   const [car, setCar] = useState<Car | null>(null);
   const [relatedCars, setRelatedCars] = useState<Car[]>([]);
@@ -23,8 +24,10 @@ export default function CarDetailPage() {
 
   useEffect(() => {
     const fetchCar = async () => {
+      if (!carId) return;
       try {
         setLoading(true);
+        console.log('Fetching car ID:', carId);
         const carDocRef = doc(db, COLLECTIONS.CARS, carId);
         const carDocSnapshot = await getDoc(carDocRef);
 
@@ -142,7 +145,7 @@ export default function CarDetailPage() {
     { icon: Users, label: 'Seats', value: car.seats },
     { icon: Zap, label: 'Transmission', value: car.transmission },
     { icon: Fuel, label: 'Fuel', value: car.fuel },
-    { icon: Calendar, label: 'Year', value: car.year },
+    { icon: Calendar, label: 'Model', value: car.model },
   ];
 
   return (
@@ -173,64 +176,74 @@ export default function CarDetailPage() {
               {/* Car Info Section */}
               <div className="card-dark p-8 mt-8">
                 {/* Title and Category */}
-                <div className="mb-6 pb-6 border-b border-[#2a2a3a]">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                        {car.brand} {car.name}
-                      </h1>
-                      <p className="text-gray-500">{car.model} • {car.year}</p>
-                    </div>
-                    <div className="bg-orange-500/10 border border-orange-500/20 text-orange-500 px-4 py-1.5 rounded-full font-semibold capitalize text-sm">
-                      {car.category}
-                    </div>
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                      {car.brand} {car.name}
+                    </h1>
                   </div>
+                  <div className="bg-orange-500/10 border border-orange-500/20 text-orange-500 px-4 py-1.5 rounded-full font-semibold uppercase text-sm">
+                    {car.category}
+                  </div>
+                </div>
+
+                {/* Model Badge */}
+                <div className="mb-6">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold bg-[#1a1a24] text-orange-500 border border-orange-500/30 whitespace-nowrap shadow-sm">
+                    <Calendar size={14} className="text-orange-500" />
+                    {car.model}
+                  </span>
                 </div>
 
                 {/* Price */}
-                <div className="mb-6">
-                  <p className="text-gray-500 text-sm mb-1">Price per Day</p>
-                  <p className="text-3xl font-bold text-white">
+                <div className="mb-8 pb-8 border-b border-[#2a2a3a]">
+                  <p className="text-gray-500 text-sm mb-1 font-medium">Price per Day</p>
+                  <p className="text-4xl font-bold text-white">
                     PKR {car.price.toLocaleString()}
-                    <span className="text-base text-gray-500 font-normal">/day</span>
+                    <span className="text-lg text-gray-500 font-normal">/day</span>
                   </p>
                 </div>
 
-                {/* Specs Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 pb-8 border-b border-[#2a2a3a]">
-                  {specs.map((spec, idx) => {
-                    const Icon = spec.icon;
-                    return (
-                      <div key={idx} className="bg-[#1a1a24] border border-[#2a2a3a] p-4 rounded-xl">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Icon className="text-orange-500" size={18} />
-                          <span className="text-xs text-gray-500">{spec.label}</span>
-                        </div>
-                        <p className="text-lg font-bold text-white capitalize">{spec.value}</p>
-                      </div>
-                    );
-                  })}
+                {/* Description */}
+                <div className="mb-8 pb-8 border-b border-[#2a2a3a]">
+                  <h3 className="text-xl font-bold text-white mb-4">About This Vehicle</h3>
+                  <p className="text-gray-400 leading-relaxed text-sm md:text-base">{car.description}</p>
                 </div>
 
                 {/* Features */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-white mb-4">Features & Facilities</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {car.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-3 py-2">
-                        <div className="w-6 h-6 rounded-md bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                          <Check size={14} className="text-orange-500" />
-                        </div>
-                        <span className="text-gray-400 text-sm">{feature}</span>
-                      </div>
-                    ))}
+                {car.features && car.features.length > 0 && (
+                  <div className="mb-8 pb-8 border-b border-[#2a2a3a]">
+                    <h3 className="text-xl font-bold text-white mb-4">Features & Facilities</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {car.features.map((feature, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1.5 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-md text-sm font-medium"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Description */}
+                {/* Specs Grid */}
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-4">About This Vehicle</h3>
-                  <p className="text-gray-500 leading-relaxed">{car.description}</p>
+                  <h3 className="text-xl font-bold text-white mb-4">Specifications</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {specs.map((spec, idx) => {
+                      const Icon = spec.icon;
+                      return (
+                        <div key={idx} className="bg-[#1a1a24] border border-[#2a2a3a] p-4 rounded-xl flex flex-col items-center justify-center text-center">
+                          <div className="flex flex-col items-center gap-2 mb-2">
+                            <Icon className="text-orange-500" size={24} />
+                            <span className="text-xs text-gray-500 uppercase tracking-wider">{spec.label}</span>
+                          </div>
+                          <p className="text-lg font-bold text-white capitalize">{spec.value}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>

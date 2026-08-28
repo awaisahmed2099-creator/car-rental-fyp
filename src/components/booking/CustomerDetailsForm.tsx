@@ -1,8 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BookingFormData } from '@/hooks/useBooking';
 import { ChevronRight, AlertCircle, MapPin } from 'lucide-react';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import MapLocationPicker from './MapLocationPicker';
+
+import { LocationData } from '@/types';
 
 interface CustomerDetailsFormProps {
   onContinue: (data: BookingFormData) => void;
@@ -19,14 +24,53 @@ export default function CustomerDetailsForm({
     customerName: '',
     customerPhone: '',
     customerEmail: '',
-    pickupLocation: '',
-    dropoffLocation: '',
+    pickupLocation: '' as string | LocationData,
+    dropoffLocation: '' as string | LocationData,
     notes: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
-  const [showDropoffSuggestions, setShowDropoffSuggestions] = useState(false);
+  const [mapModalFor, setMapModalFor] = useState<'pickup' | 'dropoff' | null>(null);
+  
+  const [loadingUserData, setLoadingUserData] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setIsLoggedIn(true);
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const data = userDoc.data();
+            let displayPhone = data.phone || data.phoneNumber || '';
+            if (displayPhone.startsWith('+92')) {
+              displayPhone = '0' + displayPhone.substring(3);
+            }
+            setFormData(prev => ({
+              ...prev,
+              customerName: data.fullName || data.name || user.displayName || '',
+              customerPhone: displayPhone,
+              customerEmail: user.email || data.email || '',
+            }));
+          } else {
+            setFormData(prev => ({
+              ...prev,
+              customerName: user.displayName || '',
+              customerEmail: user.email || '',
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        setIsLoggedIn(false);
+      }
+      setLoadingUserData(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const validatePhoneNumber = (phone: string): boolean => {
     // Pakistani phone format: 03XXXXXXXXX
@@ -47,11 +91,13 @@ export default function CustomerDetailsForm({
       newErrors.customerPhone = 'Please enter a valid Pakistani phone number (03XXXXXXXXX)';
     }
 
-    if (!formData.pickupLocation.trim()) {
+    const pickupAddress = typeof formData.pickupLocation === 'string' ? formData.pickupLocation : formData.pickupLocation?.address || '';
+    if (!pickupAddress.trim()) {
       newErrors.pickupLocation = 'Pickup location is required';
     }
 
-    if (!formData.dropoffLocation.trim()) {
+    const dropoffAddress = typeof formData.dropoffLocation === 'string' ? formData.dropoffLocation : formData.dropoffLocation?.address || '';
+    if (!dropoffAddress.trim()) {
       newErrors.dropoffLocation = 'Drop-off location is required';
     }
 
@@ -76,22 +122,32 @@ export default function CustomerDetailsForm({
     }
   };
 
-  const handleLocationSelect = (location: string, type: 'pickup' | 'dropoff') => {
-    if (type === 'pickup') {
+  const handleLocationSelect = (location: LocationData) => {
+    if (mapModalFor === 'pickup') {
       setFormData({ ...formData, pickupLocation: location });
-      setShowPickupSuggestions(false);
-    } else {
+      if (errors.pickupLocation) setErrors({ ...errors, pickupLocation: '' });
+    } else if (mapModalFor === 'dropoff') {
       setFormData({ ...formData, dropoffLocation: location });
-      setShowDropoffSuggestions(false);
+      if (errors.dropoffLocation) setErrors({ ...errors, dropoffLocation: '' });
     }
+    setMapModalFor(null);
   };
 
   const inputClasses = "w-full px-4 py-3 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all text-sm";
   const errorInputClasses = "w-full px-4 py-3 bg-red-500/5 border border-red-500/50 rounded-xl text-white placeholder:text-red-500/50 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition-all text-sm";
 
+  if (loadingUserData) {
+    return (
+      <div className="flex justify-center py-12">
+        <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="mb-8">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="mb-8">
         <h2 className="text-xl font-bold text-white mb-2">Personal Information</h2>
         <p className="text-sm text-gray-500">Provide your details to securely confirm the booking.</p>
       </div>
@@ -111,7 +167,8 @@ export default function CustomerDetailsForm({
               if (errors.customerName) setErrors({ ...errors, customerName: '' });
             }}
             placeholder="Enter your full name"
-            className={errors.customerName ? errorInputClasses : inputClasses}
+            readOnly={isLoggedIn}
+            className={`${errors.customerName ? errorInputClasses : inputClasses} ${isLoggedIn ? 'opacity-70 cursor-not-allowed bg-gray-900/50' : ''}`}
           />
           {errors.customerName && (
             <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
@@ -132,7 +189,8 @@ export default function CustomerDetailsForm({
             value={formData.customerPhone}
             onChange={(e) => handlePhoneChange(e.target.value)}
             placeholder="03001234567"
-            className={`${errors.customerPhone ? errorInputClasses : inputClasses} font-mono`}
+            readOnly={isLoggedIn}
+            className={`${errors.customerPhone ? errorInputClasses : inputClasses} font-mono ${isLoggedIn ? 'opacity-70 cursor-not-allowed bg-gray-900/50' : ''}`}
           />
           {errors.customerPhone && (
             <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
@@ -145,7 +203,7 @@ export default function CustomerDetailsForm({
       {/* Email */}
       <div>
         <label htmlFor="email" className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
-          Email <span className="text-gray-600 ml-1 font-normal capitalize tracking-normal">(Optional)</span>
+          Email <span className="text-orange-500">*</span>
         </label>
         <input
           id="email"
@@ -153,7 +211,8 @@ export default function CustomerDetailsForm({
           value={formData.customerEmail}
           onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
           placeholder="your@email.com"
-          className={inputClasses}
+          readOnly={isLoggedIn}
+          className={`${inputClasses} ${isLoggedIn ? 'opacity-70 cursor-not-allowed bg-gray-900/50' : ''}`}
         />
       </div>
 
@@ -169,35 +228,19 @@ export default function CustomerDetailsForm({
             Pickup Location <span className="text-orange-500">*</span>
           </label>
           <div className="relative">
-            <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
+            <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500" />
+            <button
               id="pickup"
-              type="text"
-              value={formData.pickupLocation}
-              onChange={(e) => {
-                setFormData({ ...formData, pickupLocation: e.target.value });
-                setShowPickupSuggestions(true);
-                if (errors.pickupLocation) setErrors({ ...errors, pickupLocation: '' });
-              }}
-              onFocus={() => setShowPickupSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowPickupSuggestions(false), 200)}
-              placeholder="Enter pickup location"
-              className={`${errors.pickupLocation ? errorInputClasses : inputClasses} pl-10`}
-            />
-            {showPickupSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-xl z-20 overflow-hidden backdrop-blur-md">
-                {LOCATION_SUGGESTIONS.map((location) => (
-                  <button
-                    key={location}
-                    type="button"
-                    onClick={() => handleLocationSelect(location, 'pickup')}
-                    className="w-full text-left px-4 py-3 hover:bg-[#2a2a3a] text-sm text-gray-300 hover:text-white transition-colors border-b border-[#2a2a3a] last:border-0"
-                  >
-                    {location}
-                  </button>
-                ))}
-              </div>
-            )}
+              type="button"
+              onClick={() => setMapModalFor('pickup')}
+              className={`${errors.pickupLocation ? errorInputClasses : inputClasses} pl-10 text-left cursor-pointer ${!formData.pickupLocation ? 'text-gray-500' : 'text-white'}`}
+            >
+              {typeof formData.pickupLocation === 'string' && formData.pickupLocation 
+                ? formData.pickupLocation 
+                : typeof formData.pickupLocation === 'object' && formData.pickupLocation?.address 
+                  ? formData.pickupLocation.address 
+                  : 'Choose Location...'}
+            </button>
           </div>
           {errors.pickupLocation && (
             <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
@@ -212,35 +255,19 @@ export default function CustomerDetailsForm({
             Drop-off Location <span className="text-orange-500">*</span>
           </label>
           <div className="relative">
-            <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
+            <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500" />
+            <button
               id="dropoff"
-              type="text"
-              value={formData.dropoffLocation}
-              onChange={(e) => {
-                setFormData({ ...formData, dropoffLocation: e.target.value });
-                setShowDropoffSuggestions(true);
-                if (errors.dropoffLocation) setErrors({ ...errors, dropoffLocation: '' });
-              }}
-              onFocus={() => setShowDropoffSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowDropoffSuggestions(false), 200)}
-              placeholder="Enter drop-off location"
-              className={`${errors.dropoffLocation ? errorInputClasses : inputClasses} pl-10`}
-            />
-            {showDropoffSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl shadow-xl z-20 overflow-hidden backdrop-blur-md">
-                {LOCATION_SUGGESTIONS.map((location) => (
-                  <button
-                    key={location}
-                    type="button"
-                    onClick={() => handleLocationSelect(location, 'dropoff')}
-                    className="w-full text-left px-4 py-3 hover:bg-[#2a2a3a] text-sm text-gray-300 hover:text-white transition-colors border-b border-[#2a2a3a] last:border-0"
-                  >
-                    {location}
-                  </button>
-                ))}
-              </div>
-            )}
+              type="button"
+              onClick={() => setMapModalFor('dropoff')}
+              className={`${errors.dropoffLocation ? errorInputClasses : inputClasses} pl-10 text-left cursor-pointer ${!formData.dropoffLocation ? 'text-gray-500' : 'text-white'}`}
+            >
+              {typeof formData.dropoffLocation === 'string' && formData.dropoffLocation 
+                ? formData.dropoffLocation 
+                : typeof formData.dropoffLocation === 'object' && formData.dropoffLocation?.address 
+                  ? formData.dropoffLocation.address 
+                  : 'Choose Location...'}
+            </button>
           </div>
           {errors.dropoffLocation && (
             <div className="flex items-center gap-1 mt-2 text-red-400 text-xs">
@@ -270,12 +297,21 @@ export default function CustomerDetailsForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold flex items-center justify-center gap-2 py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold flex items-center justify-center gap-2 py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20 cursor-pointer disabled:cursor-not-allowed"
         >
           Proceed to Payment
           <ChevronRight size={18} />
         </button>
-      </div>
-    </form>
+        </div>
+      </form>
+
+      {mapModalFor && (
+        <MapLocationPicker
+          title={mapModalFor === 'pickup' ? 'Pickup Location' : 'Drop-off Location'}
+          onSelect={handleLocationSelect}
+          onClose={() => setMapModalFor(null)}
+        />
+      )}
+    </>
   );
 }

@@ -6,7 +6,9 @@ import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/collections';
 import { Package, Car, PackageCar } from '@/types';
 import toast from 'react-hot-toast';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Plus, Trash2, X, Check, ChevronDown, ChevronUp } from 'lucide-react';
+
+const SUGGESTED_FEATURES = ['AC', 'Music System', 'GPS', 'Bluetooth', 'USB Charging', 'Leather Seats', 'Sunroof', 'Backup Camera'];
 
 interface FormData {
   name: string;
@@ -166,6 +168,15 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
     }));
   };
 
+  const toggleFeature = (feature: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      features: formData.features.includes(feature)
+        ? formData.features.filter((f) => f !== feature)
+        : [...formData.features, feature],
+    }));
+  };
+
   const handleCancel = () => {
     onClose();
   };
@@ -207,7 +218,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
         image: car.image || '',
       }));
 
-      await updateDoc(pkgRef, {
+      const updateData = {
         name: formData.name,
         description: formData.description,
         pricePerDay: formData.pricePerDay,
@@ -217,7 +228,9 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
         features: formData.features,
         popular: formData.popular,
         available: formData.available,
-      });
+      };
+
+      await updateDoc(pkgRef, updateData);
 
       toast.dismiss(saveToastId);
       toast.success('Package updated successfully!');
@@ -242,17 +255,17 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="bg-white dark:bg-[#1a1a24] border border-gray-200 dark:border-[#2a2a3a] rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white">
-          <h2 className="text-2xl font-bold text-slate-900">Edit Package</h2>
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-[#2a2a3a] sticky top-0 bg-white dark:bg-[#1a1a24] z-10">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Package</h2>
           <button
             onClick={handleCancel}
-            className="px-4 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5 rounded-md hover:bg-orange-500/20 cursor-pointer group transition-colors"
             disabled={loading}
           >
-            Cancel
+            <X size={20} className="text-gray-600 dark:text-gray-400 group-hover:text-orange-500 transition-colors" />
           </button>
         </div>
 
@@ -261,8 +274,8 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
           <div className="flex gap-4">
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex-1">
-                <div className={`h-2 rounded-full ${step >= s ? 'bg-orange-500' : 'bg-gray-200'}`}></div>
-                <p className="text-xs text-gray-600 mt-2 text-center">
+                <div className={`h-2 rounded-full ${step >= s ? 'bg-orange-500' : 'bg-gray-200 dark:bg-gray-700'}`}></div>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">
                   {s === 1 ? 'Basic Info' : s === 2 ? 'Cars & Images' : 'Features'}
                 </p>
               </div>
@@ -276,43 +289,49 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Package Name *</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Package Name *</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
+                  placeholder="e.g., Wedding Package"
+                  required
+                  className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
+                  placeholder="Package description..."
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none resize-none text-slate-900 shadow-sm"
+                  className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full resize-none"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">Price Per Day (PKR) *</label>
-                  <input
-                    type="number"
-                    name="pricePerDay"
-                    value={formData.pricePerDay}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
-                  />
+              <div className="relative group">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Price Per Day (PKR) *</label>
+                <input
+                  type="number"
+                  name="pricePerDay"
+                  value={formData.pricePerDay}
+                  onChange={handleInputChange}
+                  placeholder="5000"
+                  className="appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-orange-500 outline-none w-full group-hover:border-orange-500/50 transition-colors"
+                />
+                <div className="absolute right-3 top-[32px] flex flex-col gap-0.5">
+                  <button type="button" onClick={() => setFormData(p => ({...p, pricePerDay: p.pricePerDay + 500}))} className="text-gray-400 hover:text-orange-500 cursor-pointer"><ChevronUp className="w-3.5 h-3.5" /></button>
+                  <button type="button" onClick={() => setFormData(p => ({...p, pricePerDay: Math.max(0, p.pricePerDay - 500)}))} className="text-gray-400 hover:text-orange-500 cursor-pointer"><ChevronDown className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-2">Discount (%)</label>
+                <div className="relative group">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Discount (%)</label>
                   <input
                     type="number"
                     name="discount"
@@ -320,19 +339,29 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                     onChange={handleInputChange}
                     min="0"
                     max="100"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
+                    placeholder="10"
+                    className="appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-orange-500 outline-none w-full group-hover:border-orange-500/50 transition-colors"
                   />
+                  <div className="absolute right-3 top-[32px] flex flex-col gap-0.5">
+                    <button type="button" onClick={() => setFormData(p => ({...p, discount: Math.min(100, p.discount + 1)}))} className="text-gray-400 hover:text-orange-500 cursor-pointer"><ChevronUp className="w-3.5 h-3.5" /></button>
+                    <button type="button" onClick={() => setFormData(p => ({...p, discount: Math.max(0, p.discount - 1)}))} className="text-gray-400 hover:text-orange-500 cursor-pointer"><ChevronDown className="w-3.5 h-3.5" /></button>
+                  </div>
                 </div>
                 <div className="flex items-end gap-2">
-                  <label className="flex items-center gap-2 cursor-pointer flex-1">
-                    <input
-                      type="checkbox"
-                      name="popular"
-                      checked={formData.popular}
-                      onChange={handleInputChange}
-                      className="w-5 h-5 accent-orange-500"
-                    />
-                    <span className="text-sm font-medium text-gray-900">Mark as Popular</span>
+                  <label className="flex items-center gap-3 cursor-pointer group flex-1">
+                    <div className="relative flex items-center justify-center w-5 h-5">
+                      <input
+                        type="checkbox"
+                        name="popular"
+                        checked={formData.popular}
+                        onChange={handleInputChange}
+                        className="appearance-none w-5 h-5 rounded border border-gray-300 dark:border-gray-600 checked:bg-orange-500 checked:border-orange-500 transition-colors cursor-pointer m-0"
+                      />
+                      {formData.popular && (
+                        <Check className="absolute w-3.5 h-3.5 text-black pointer-events-none" strokeWidth={4} />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-orange-500 transition-colors">Mark as Popular</span>
                   </label>
                 </div>
               </div>
@@ -343,20 +372,20 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Add Cars to Package</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Add Cars to Package</h3>
                 
                 {/* Add Car Form */}
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <div className="bg-gray-50 dark:bg-[#0a0a0f] border border-gray-200 dark:border-[#2a2a3a] rounded-lg p-4 mb-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {/* Fleet Car Dropdown */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-2">Select Car from Fleet *</label>
+                    <div className="relative group">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Car from Fleet *</label>
                       <select
                         value={selectedFleetCar}
                         onChange={(e) => {
                           setSelectedFleetCar(e.target.value);
                         }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 bg-white shadow-sm"
+                        className="appearance-none bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-orange-500 outline-none w-full cursor-pointer transition-colors group-hover:border-orange-500/50"
                       >
                         <option value="">Choose a car...</option>
                         {cars.map((car) => (
@@ -365,25 +394,30 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                           </option>
                         ))}
                       </select>
+                      <ChevronDown className="absolute right-3 top-[38px] w-5 h-5 text-gray-400 group-hover:text-orange-500 pointer-events-none transition-colors" />
                     </div>
 
                     {/* Quantity Input */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-900 mb-2">Quantity *</label>
+                    <div className="relative group">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantity *</label>
                       <input
                         type="number"
                         value={carQuantityInput}
                         onChange={(e) => setCarQuantityInput(e.target.value)}
                         min="1"
                         placeholder="1"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
+                        className="appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-orange-500 outline-none w-full group-hover:border-orange-500/50 transition-colors"
                       />
+                      <div className="absolute right-3 top-[32px] flex flex-col gap-0.5">
+                        <button type="button" onClick={() => setCarQuantityInput(String(parseInt(carQuantityInput || "0") + 1))} className="text-gray-400 hover:text-orange-500 cursor-pointer"><ChevronUp className="w-3.5 h-3.5" /></button>
+                        <button type="button" onClick={() => setCarQuantityInput(String(Math.max(1, parseInt(carQuantityInput || "1") - 1)))} className="text-gray-400 hover:text-orange-500 cursor-pointer"><ChevronDown className="w-3.5 h-3.5" /></button>
+                      </div>
                     </div>
                   </div>
 
                   <button
                     onClick={() => addPackageCar()}
-                    className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                    className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium cursor-pointer"
                   >
                     <Plus size={20} className="inline mr-2" />
                     Add This Car
@@ -402,25 +436,25 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                 {/* Added Cars List */}
                 {formData.packageCars.length > 0 && (
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Package Cars ({formData.packageCars.length})</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Package Cars ({formData.packageCars.length})</h4>
                     {formData.packageCars.map((car, idx) => (
-                      <div key={idx} className="border border-gray-200 rounded-lg p-4 bg-white">
+                      <div key={idx} className="border border-gray-200 dark:border-[#2a2a3a] rounded-lg p-4 bg-gray-50 dark:bg-[#0a0a0f]">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
                           {/* Car Info */}
                           <div className="md:col-span-2">
-                            <p className="font-semibold text-gray-900">{car.carName}</p>
+                            <p className="font-semibold text-gray-900 dark:text-white">{car.carName}</p>
                             {car.carId && (
-                              <p className="text-xs text-gray-500">From fleet (ID: {car.carId})</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-500">From fleet (ID: {car.carId})</p>
                             )}
                           </div>
 
                           {/* Quantity Control */}
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
+                            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Quantity</label>
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => updateCarQuantity(idx, car.quantity - 1)}
-                                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                className="px-2 py-1 bg-white dark:bg-[#1a1a24] border border-gray-200 dark:border-[#2a2a3a] text-gray-900 dark:text-white rounded cursor-pointer hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
                               >
                                 −
                               </button>
@@ -428,12 +462,12 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                                 type="number"
                                 value={car.quantity}
                                 onChange={(e) => updateCarQuantity(idx, parseInt(e.target.value) || 1)}
-                                className="w-12 text-center border border-gray-300 rounded"
+                                className="appearance-none [&::-webkit-inner-spin-button]:appearance-none bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg focus:ring-2 focus:ring-orange-500 outline-none w-12 text-center"
                                 min="1"
                               />
                               <button
                                 onClick={() => updateCarQuantity(idx, car.quantity + 1)}
-                                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                className="px-2 py-1 bg-white dark:bg-[#1a1a24] border border-gray-200 dark:border-[#2a2a3a] text-gray-900 dark:text-white rounded cursor-pointer hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
                               >
                                 +
                               </button>
@@ -446,12 +480,12 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                               <img
                                 src={car.image}
                                 alt={car.carName}
-                                className="w-16 h-16 object-cover rounded border border-gray-200"
+                                className="w-16 h-16 object-cover rounded border border-gray-200 dark:border-[#2a2a3a]"
                               />
                             )}
                             <button
                               onClick={() => removePackageCar(idx)}
-                              className="px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
+                              className="px-3 py-2 bg-red-500/10 text-red-500 rounded hover:bg-red-500/20 transition-colors cursor-pointer"
                             >
                               <Trash2 size={18} />
                             </button>
@@ -468,59 +502,90 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
           {/* Step 3: Features */}
           {step === 3 && (
             <div className="space-y-4">
-              <label className="block text-sm font-medium text-gray-900 mb-2">Package Features</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Package Features</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={featureInput}
                   onChange={(e) => setFeatureInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-                  placeholder="Add a feature..."
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-900 shadow-sm"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addFeature();
+                    }
+                  }}
+                  placeholder="Enter feature"
+                  className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none flex-1"
                 />
                 <button
                   onClick={addFeature}
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 cursor-pointer"
                 >
-                  <Plus size={20} />
+                  <Plus size={16} />
+                  Add
                 </button>
               </div>
 
-              {/* Features Chips */}
-              <div className="flex flex-wrap gap-2">
+              {/* Selected Features */}
+              <div className="flex flex-wrap gap-2 mb-4">
                 {formData.features.map((feature) => (
-                  <span
+                  <div
                     key={feature}
-                    className="bg-orange-50 text-orange-700 px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20"
                   >
                     {feature}
-                    <button onClick={() => removeFeature(feature)} className="hover:text-orange-900">
-                      <X size={16} />
+                    <button onClick={() => removeFeature(feature)} className="cursor-pointer hover:text-red-500 transition-colors">
+                      <X size={14} />
                     </button>
-                  </span>
+                  </div>
                 ))}
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer mt-4">
-                <input
-                  type="checkbox"
-                  name="available"
-                  checked={formData.available}
-                  onChange={handleInputChange}
-                  className="w-5 h-5 accent-orange-500"
-                />
-                <span className="text-sm font-medium text-gray-900">Available for booking</span>
+              {/* Suggested Features */}
+              <div>
+                <p className="text-xs text-gray-600 mb-2">Suggested features:</p>
+                <div className="flex flex-wrap gap-2">
+                  {SUGGESTED_FEATURES.map((feature) => (
+                    <button
+                      key={feature}
+                      onClick={() => toggleFeature(feature)}
+                      className={
+                        formData.features.includes(feature)
+                          ? "px-3 py-1 rounded-full text-sm font-medium bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 border border-orange-500 cursor-default opacity-50"
+                          : "px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-orange-500 hover:text-orange-500 cursor-pointer transition-colors"
+                      }
+                    >
+                      {feature}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <label className="flex items-center gap-3 cursor-pointer group mt-4 w-max">
+                <div className="relative flex items-center justify-center w-5 h-5">
+                  <input
+                    type="checkbox"
+                    name="available"
+                    checked={formData.available}
+                    onChange={handleInputChange}
+                    className="appearance-none w-5 h-5 rounded border border-gray-300 dark:border-gray-600 checked:bg-orange-500 checked:border-orange-500 transition-colors cursor-pointer m-0"
+                  />
+                  {formData.available && (
+                    <Check className="absolute w-3.5 h-3.5 text-black pointer-events-none" strokeWidth={4} />
+                  )}
+                </div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-orange-500 transition-colors">Available for booking</span>
               </label>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-6 flex justify-between gap-3 bg-gray-50">
+        <div className="border-t border-gray-200 dark:border-[#2a2a3a] p-6 flex justify-between gap-3 bg-gray-50 dark:bg-[#0a0a0f] rounded-b-xl">
           <button
             onClick={() => setStep(Math.max(1, step - 1))}
             disabled={step === 1 || loading}
-            className="px-6 py-2 border border-gray-300 rounded-lg font-medium text-slate-700 bg-gray-200 hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:text-gray-400 disabled:cursor-not-allowed shadow-sm"
+            className="px-6 py-2 rounded-lg font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-700 dark:bg-transparent dark:text-gray-300 dark:border dark:border-[#2a2a3a] cursor-pointer hover:border-orange-500 hover:text-orange-500 hover:bg-orange-500/10 transition-colors"
           >
             Previous
           </button>
@@ -532,7 +597,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
                 }
               }}
               disabled={loading}
-              className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Next
             </button>
@@ -540,7 +605,7 @@ export default function EditPackageModal({ package: initialPackage, onClose }: E
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? 'Updating...' : 'Update Package'}
             </button>

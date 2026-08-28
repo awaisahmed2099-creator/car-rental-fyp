@@ -1,3 +1,4 @@
 {
-    "liveServer.settings.multiRootWorkspaceName": "car-rental"
+    "liveServer.settings.multiRootWorkspaceName": "car-rental",
+    "css.lint.unknownAtRules": "ignore"
 }

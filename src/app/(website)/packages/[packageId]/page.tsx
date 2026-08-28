@@ -226,38 +226,53 @@ export default function PackageDetailPage() {
 
               {/* Package Info Section */}
               <div className="card-dark p-8">
-                {/* Title and Duration */}
-                <div className="mb-6 pb-6 border-b border-[#2a2a3a]">
+                {/* Title */}
+                <div className="mb-4">
                   <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                     {pkg.name}
                   </h1>
-                  <div className="space-y-2 text-sm text-gray-500">
-                    <p>
-                      Duration:{" "}
-                      <span className="font-semibold text-gray-300">
-                        {pkg.duration || "Flexible"}
+                </div>
+
+                {/* Cars Included Badges */}
+                <div className="mb-6 pb-6 border-b border-[#2a2a3a]">
+                  <p className="text-gray-400 text-sm mb-3">Cars Included</p>
+                  <div className="flex flex-wrap gap-2">
+                    {pkg.cars.map((car, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold bg-[#1a1a24] text-orange-500 border border-orange-500/30 whitespace-nowrap shadow-sm"
+                      >
+                        {car.quantity}x {car.carName}
                       </span>
-                    </p>
-                    <p>
-                      Price:{" "}
-                      <span className="font-semibold text-white">
-                        PKR {discountedPrice.toLocaleString()}
-                      </span>
-                      {pkg.discount > 0 && (
-                        <span className="ml-2 text-xs line-through text-gray-600">
-                          PKR {pkg.pricePerDay.toLocaleString()}
-                        </span>
-                      )}
-                    </p>
+                    ))}
                   </div>
                 </div>
 
+                {/* Price */}
+                <div className="mb-8 pb-8 border-b border-[#2a2a3a]">
+                  <p className="text-gray-500 text-sm mb-1 font-medium">Price per Day</p>
+                  {pkg.discount > 0 ? (
+                    <div className="flex items-baseline gap-3">
+                      <p className="text-4xl font-bold text-orange-500">
+                        PKR {discountedPrice.toLocaleString()}
+                      </p>
+                      <span className="text-xl line-through text-gray-600 font-medium">
+                        PKR {pkg.pricePerDay.toLocaleString()}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-4xl font-bold text-orange-500">
+                      PKR {pkg.pricePerDay.toLocaleString()}
+                    </p>
+                  )}
+                </div>
+
                 {/* Description */}
-                <div className="mb-8">
-                  <h3 className="text-xl font-bold text-white mb-3">
+                <div className="mb-8 pb-8 border-b border-[#2a2a3a]">
+                  <h3 className="text-xl font-bold text-white mb-4">
                     About This Package
                   </h3>
-                  <p className="text-gray-500 leading-relaxed">
+                  <p className="text-gray-400 leading-relaxed text-sm md:text-base">
                     {pkg.description}
                   </p>
                 </div>
@@ -265,57 +280,19 @@ export default function PackageDetailPage() {
                 {/* Features */}
                 <div className="mb-8">
                   <h3 className="text-xl font-bold text-white mb-4">
-                    Package Features
+                    Features & Facilities
                   </h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {pkg.features.map((feature, idx) => (
-                      <li
+                      <span
                         key={idx}
-                        className="flex items-start gap-3 rounded-lg border border-[#2a2a3a] bg-[#1a1a24] px-3 py-2"
+                        className="px-3 py-1.5 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-md text-sm font-medium"
                       >
-                        <Check
-                          size={18}
-                          className="text-orange-500 flex-shrink-0 mt-0.5"
-                        />
-                        <span className="text-gray-400 text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Included Cars Info */}
-                {pkg.cars && pkg.cars.length > 0 && (
-                  <div className="mb-8">
-                    <h3 className="text-2xl font-bold text-white mb-4">
-                      Included Vehicles ({totalVehicles} Vehicle
-                      {totalVehicles !== 1 ? "s" : ""})
-                    </h3>
-
-                    <p className="text-sm text-gray-500 mb-4">
-                      Composition:{" "}
-                      <span className="text-gray-400">
-                        {getCompositionSummary()}
+                        {feature}
                       </span>
-                    </p>
-
-                    {/* Car List with Quantities */}
-                    <div className="bg-white/5 border border-[#2a2a3a] rounded-xl p-4 space-y-2">
-                      {pkg.cars.map((car, idx) => (
-                        <div
-                          key={idx}
-                          className="flex justify-between items-center"
-                        >
-                          <span className="text-gray-300 font-medium">
-                            {car.carName}
-                          </span>
-                          <span className="text-orange-500 font-semibold text-sm">
-                            {car.quantity} {car.quantity > 1 ? "Units" : "Unit"}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
             </div>
 

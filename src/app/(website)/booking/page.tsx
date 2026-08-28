@@ -118,7 +118,7 @@ function BookingContent() {
     if (!customerData || !startDate || !endDate || !car) return;
     try {
       setLoadingPayment(true);
-      const bookingData = { carId: car.carId, carName: car.name, carImage: car.images?.[0] || '', packageId: package_?.packageId, packageName: package_?.name, startDate, endDate, totalDays: differenceInDays(endDate, startDate) || 1, totalAmount: amount, pickupLocation: customerData.pickupLocation, dropoffLocation: customerData.dropoffLocation, notes: customerData.notes, customerName: customerData.customerName, customerPhone: customerData.customerPhone, customerEmail: customerData.customerEmail, paymentMethod: 'cash' as const, paymentStatus: 'pending' as const };
+      const bookingData = { carId: car.carId, carName: car.name, carImage: car.images?.[0] || '', packageId: package_?.packageId, packageName: package_?.name, packageDetails: package_ ? package_.cars.map(c => `${c.quantity} ${c.carName}`).join(' and ') : undefined, tag: package_ ? (package_.popular ? 'popular' : '') : car.category, startDate, endDate, totalDays: differenceInDays(endDate, startDate) + 1, totalAmount: amount, pickupLocation: customerData.pickupLocation, dropoffLocation: customerData.dropoffLocation, notes: customerData.notes, customerName: customerData.customerName, customerPhone: customerData.customerPhone, customerEmail: customerData.customerEmail, paymentMethod: 'cash' as const, paymentStatus: 'pending' as const };
       const bookingId = await createBooking(bookingData);
       toast.success('Booking confirmed! Redirecting to success page...');
       setTimeout(() => { router.push(`/booking/success?bookingId=${bookingId}`); }, 1000);
@@ -132,7 +132,7 @@ function BookingContent() {
     if (!customerData || !startDate || !endDate || !car) return;
     try {
       setLoadingPayment(true);
-      const bookingData = { carId: car.carId, carName: car.name, carImage: car.images?.[0] || '', packageId: package_?.packageId, packageName: package_?.name, startDate, endDate, totalDays: differenceInDays(endDate, startDate) || 1, totalAmount: amount, pickupLocation: customerData.pickupLocation, dropoffLocation: customerData.dropoffLocation, notes: customerData.notes, customerName: customerData.customerName, customerPhone: customerData.customerPhone, customerEmail: customerData.customerEmail, paymentMethod: 'jazzcash' as const, paymentStatus: 'pending' as const };
+      const bookingData = { carId: car.carId, carName: car.name, carImage: car.images?.[0] || '', packageId: package_?.packageId, packageName: package_?.name, packageDetails: package_ ? package_.cars.map(c => `${c.quantity} ${c.carName}`).join(' and ') : undefined, tag: package_ ? (package_.popular ? 'popular' : '') : car.category, startDate, endDate, totalDays: differenceInDays(endDate, startDate) + 1, totalAmount: amount, pickupLocation: customerData.pickupLocation, dropoffLocation: customerData.dropoffLocation, notes: customerData.notes, customerName: customerData.customerName, customerPhone: customerData.customerPhone, customerEmail: customerData.customerEmail, paymentMethod: 'jazzcash' as const, paymentStatus: 'pending' as const };
       const bookingId = await createBooking(bookingData);
       const response = await fetch('/api/jazzcash/initiate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount, bookingId, customerPhone: customerData.customerPhone, description: `Car Rental: ${car.name}` }) });
       if (!response.ok) { const errorData = await response.json().catch(() => ({})); throw new Error(errorData.error || `Failed to initiate JazzCash payment (${response.status})`); }
@@ -157,9 +157,11 @@ function BookingContent() {
         carImage: car.images?.[0] || '',
         packageId: package_?.packageId,
         packageName: package_?.name,
+        packageDetails: package_ ? package_.cars.map(c => `${c.quantity} ${c.carName}`).join(' and ') : undefined,
+        tag: package_ ? (package_.popular ? 'popular' : '') : car.category,
         startDate,
         endDate,
-        totalDays: differenceInDays(endDate, startDate) || 1,
+        totalDays: differenceInDays(endDate, startDate) + 1,
         totalAmount: amount,
         pickupLocation: customerData.pickupLocation,
         dropoffLocation: customerData.dropoffLocation,
@@ -203,7 +205,7 @@ function BookingContent() {
               throw new Error(verifyData.error || 'Could not verify payment');
             }
             toast.success('Payment successful!');
-            router.push(`/booking/success?bookingId=${bookingId}`);
+            window.location.href = `/booking/success?bookingId=${bookingId}`;
           } catch (err) {
             console.error('Paddle verify failed:', err);
             toast.error(err instanceof Error ? err.message : 'Verification failed');
@@ -288,7 +290,7 @@ function BookingContent() {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 lg:order-2">
-            <BookingSummaryCard car={car} package={package_ || undefined} startDate={startDate} endDate={endDate} totalAmount={amount} discount={discount} pickupLocation={customerData?.pickupLocation} dropoffLocation={customerData?.dropoffLocation} />
+            <BookingSummaryCard car={car} package={package_ || undefined} startDate={startDate} endDate={endDate} totalAmount={amount} discount={discount} pickupLocation={customerData?.pickupLocation} dropoffLocation={customerData?.dropoffLocation} notes={customerData?.notes} />
           </div>
           <div className="lg:col-span-2 lg:order-1">
             <div className="card-dark p-6 sm:p-8">

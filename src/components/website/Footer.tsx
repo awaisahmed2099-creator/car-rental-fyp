@@ -1,11 +1,65 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MessageCircle, Phone, Mail, MapPin, ArrowUpRight } from 'lucide-react';
+import { MessageCircle, Phone, Mail, MapPin, ArrowUpRight, Loader2 } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp, getDoc, doc } from 'firebase/firestore';
+import { COLLECTIONS } from '@/lib/collections';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const [companyInfo, setCompanyInfo] = useState<any>(null);
+  const [isFetchingInfo, setIsFetchingInfo] = useState(true);
+
+  useEffect(() => {
+    const fetchCompanyInfo = async () => {
+      try {
+        const infoDoc = await getDoc(doc(db, COLLECTIONS.SETTINGS, 'companyInfo'));
+        if (infoDoc.exists()) {
+          setCompanyInfo(infoDoc.data());
+        }
+      } catch (error) {
+        console.error('Error fetching company info:', error);
+      } finally {
+        setIsFetchingInfo(false);
+      }
+    };
+    fetchCompanyInfo();
+  }, []);
+
+  const getFallback = (value: string | undefined, defaultVal: string) => {
+    if (isFetchingInfo) return 'Loading...';
+    return value || defaultVal;
+  };
+
+  const handleSubscribe = async () => {
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      setMessage({ type: 'error', text: 'Please enter a valid email address.' });
+      return;
+    }
+    
+    setIsSubscribing(true);
+    setMessage(null);
+    
+    try {
+      await addDoc(collection(db, 'newsletter_subscribers'), {
+        email: email,
+        subscribedAt: serverTimestamp()
+      });
+      setMessage({ type: 'success', text: 'Successfully subscribed!' });
+      setEmail('');
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      setMessage({ type: 'error', text: 'Failed to subscribe. Please try again later.' });
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
     <footer className="relative bg-[#0a0a0f] border-t border-[#1a1a24]">
@@ -25,23 +79,23 @@ export default function Footer() {
             </p>
             {/* Contact quick info */}
             <div className="space-y-3">
-              <a href="tel:+921234567890" className="flex items-center gap-3 text-sm text-gray-400 hover:text-orange-500 transition-colors group">
+              <a href={isFetchingInfo ? "#" : `tel:${companyInfo?.phoneNumber || '+921234567890'}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors cursor-default group">
                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-orange-500/10 transition-colors">
                   <Phone size={14} className="text-orange-500" />
                 </div>
-                +92 123 456 7890
+                {getFallback(companyInfo?.phoneNumber, '+92 123 456 7890')}
               </a>
-              <a href="mailto:info@driveease.com" className="flex items-center gap-3 text-sm text-gray-400 hover:text-orange-500 transition-colors group">
+              <a href={isFetchingInfo ? "#" : `mailto:${companyInfo?.email || 'info@driveease.com'}`} className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors cursor-default group">
                 <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-orange-500/10 transition-colors">
                   <Mail size={14} className="text-orange-500" />
                 </div>
-                info@driveease.com
+                {getFallback(companyInfo?.email, 'info@driveease.com')}
               </a>
-              <div className="flex items-center gap-3 text-sm text-gray-400">
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center">
+              <div className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors cursor-default group">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-orange-500/10 transition-colors">
                   <MapPin size={14} className="text-orange-500" />
                 </div>
-                Rawalpindi, Pakistan
+                {getFallback(companyInfo?.address, 'Rawalpindi')}{!isFetchingInfo && (companyInfo?.city ? `, ${companyInfo.city}` : ', Pakistan')}
               </div>
             </div>
           </div>
@@ -52,9 +106,10 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               {[
                 { label: 'Home', href: '/home' },
-                { label: 'Our Fleet', href: '/cars' },
+                { label: 'Cars', href: '/cars' },
                 { label: 'Packages', href: '/packages' },
                 { label: 'About Us', href: '/about' },
+                { label: 'Contact Us', href: '/contact' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-gray-500 hover:text-white transition-colors duration-200 flex items-center gap-2 group">
@@ -71,16 +126,17 @@ export default function Footer() {
             <h4 className="text-white font-semibold mb-6 text-sm uppercase tracking-wider">Services</h4>
             <ul className="space-y-3 text-sm">
               {[
-                { label: 'Self Drive', href: '/cars' },
-                { label: 'With Driver', href: '/packages' },
-                { label: 'Wedding Cars', href: '/packages' },
-                { label: 'Corporate Rentals', href: '/packages' },
+                { label: 'Self Drive' },
+                { label: 'With Driver' },
+                { label: 'Wedding Cars' },
+                { label: 'Corporate Rentals' },
+                { label: 'Safe Driver' },
               ].map((link, idx) => (
                 <li key={idx}>
-                  <Link href={link.href} className="text-gray-500 hover:text-white transition-colors duration-200 flex items-center gap-2 group">
+                  <span className="text-gray-500 hover:text-white transition-colors duration-200 flex items-center gap-2 group cursor-default">
                     <span className="w-0 group-hover:w-3 h-px bg-orange-500 transition-all duration-300" />
                     {link.label}
-                  </Link>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -93,13 +149,25 @@ export default function Footer() {
             <div className="flex gap-2">
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubscribing}
                 placeholder="Your email"
-                className="flex-1 px-4 py-2.5 bg-white/5 border border-[#2a2a3a] rounded-lg text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 transition-colors"
+                className="flex-1 px-4 py-2.5 bg-white/5 border border-[#2a2a3a] rounded-lg text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 transition-colors disabled:opacity-50"
               />
-              <button className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors flex-shrink-0">
-                <ArrowUpRight size={18} />
+              <button 
+                onClick={handleSubscribe}
+                disabled={isSubscribing}
+                className="px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors flex-shrink-0 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {isSubscribing ? <Loader2 size={18} className="animate-spin" /> : <ArrowUpRight size={18} />}
               </button>
             </div>
+            {message && (
+              <p className={`mt-2 text-sm ${message.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+                {message.text}
+              </p>
+            )}
           </div>
         </div>
 

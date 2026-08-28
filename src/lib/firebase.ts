@@ -1,6 +1,6 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
@@ -12,11 +12,21 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+// Initialize Firebase safely for Next.js Fast Refresh
+let db: Firestore;
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+try {
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
+} catch (error) {
+  db = getFirestore(app);
+}
 
 export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+export { db };
 export const storage: FirebaseStorage = getStorage(app);
 
 export default app;

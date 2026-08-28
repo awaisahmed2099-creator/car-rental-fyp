@@ -19,8 +19,15 @@ service cloud.firestore {
 
     match /bookings/{bookingId} {
       allow create: if true;
-      allow read: if true;
+      allow get: if true;
+      allow list: if isAdminUser() || (request.auth != null && request.auth.uid == resource.data.customerId);
       allow update, delete: if isAdminUser();
+    }
+
+    // Yahan humne read ko 'true' kiya hai taake signup se pehle email check ho sake
+    match /users/{userId} {
+      allow read: if true; 
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
 
     match /admins/{adminId} {
@@ -40,6 +47,17 @@ service cloud.firestore {
 
     match /notifications/{notificationId} {
       allow read, write: if isAdminUser();
+    }
+
+    match /newsletter_subscribers/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdminUser();
+    }
+
+    match /testimonials/{docId} {
+      allow read: if resource.data.status == 'approved' || isAdminUser();
+      allow create: if true;
+      allow update, delete: if isAdminUser();
     }
   }
 }

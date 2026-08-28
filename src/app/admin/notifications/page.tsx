@@ -139,27 +139,27 @@ export default function NotificationsPage() {
     : notifications.filter(n => !n.read);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f] flex flex-col">
       <AdminHeader title="Notifications" />
 
       <main className="flex-1 p-8 w-full max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Recent Notifications</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Recent Notifications</h2>
             <p className="text-gray-600 mt-1">Stay updated with the latest activities</p>
           </div>
           
           <div className="flex flex-wrap items-center gap-3">
             <button 
               onClick={markAllAsRead}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors cursor-pointer"
             >
               <CheckCircle2 size={18} />
               Mark All as Read
             </button>
             <button 
               onClick={clearAll}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors cursor-pointer"
             >
               <Trash2 size={18} />
               Clear All
@@ -168,11 +168,11 @@ export default function NotificationsPage() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-gray-200">
+        <div className="flex gap-4 mb-6 border-b border-gray-200 dark:border-[#2a2a3a]">
           <button 
             onClick={() => setFilter('all')}
-            className={`pb-3 text-sm font-medium transition-colors relative ${
-              filter === 'all' ? 'text-orange-600' : 'text-gray-500 hover:text-gray-700'
+            className={`pb-3 text-sm font-medium transition-colors relative cursor-pointer ${
+              filter === 'all' ? 'text-orange-600' : 'text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300'
             }`}
           >
             All Notifications
@@ -180,8 +180,8 @@ export default function NotificationsPage() {
           </button>
           <button 
             onClick={() => setFilter('unread')}
-            className={`pb-3 text-sm font-medium transition-colors relative ${
-              filter === 'unread' ? 'text-orange-600' : 'text-gray-500 hover:text-gray-700'
+            className={`pb-3 text-sm font-medium transition-colors relative cursor-pointer ${
+              filter === 'unread' ? 'text-orange-600' : 'text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300'
             }`}
           >
             Unread
@@ -201,24 +201,24 @@ export default function NotificationsPage() {
               <div className="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
             </div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
-              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                <Bell className="w-8 h-8 text-gray-400" />
+            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#1a1a24] rounded-xl border border-dashed border-gray-200 dark:border-[#2a2a3a]">
+              <div className="w-16 h-16 bg-gray-50 dark:bg-[#0a0a0f] rounded-full flex items-center justify-center mb-4">
+                <Bell className="w-8 h-8 text-gray-600 dark:text-gray-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">No notifications found</h3>
-              <p className="text-gray-500">You're all caught up!</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">No notifications found</h3>
+              <p className="text-gray-500 dark:text-gray-500">You're all caught up!</p>
             </div>
           ) : (
             filteredNotifications.map((notification) => (
               <div 
                 key={notification.id}
                 onClick={() => markAsRead(notification.id, notification.read)}
-                className={`group flex items-start gap-4 p-5 bg-white rounded-xl border transition-all hover:shadow-md cursor-pointer ${
+                className={`group flex items-start gap-4 p-5 bg-white dark:bg-[#1a1a24] rounded-xl border transition-all hover:shadow-md cursor-pointer ${
                   notification.read ? 'border-gray-100 opacity-75' : 'border-blue-100 bg-blue-50/10 shadow-sm ring-1 ring-blue-50'
                 }`}
               >
                 <div className={`p-3 rounded-lg shrink-0 ${
-                  notification.read ? 'bg-gray-100' : 'bg-white shadow-sm'
+                  notification.read ? 'bg-gray-100' : 'bg-white dark:bg-[#1a1a24] shadow-sm'
                 }`}>
                   {getIcon(notification.type)}
                 </div>
@@ -226,16 +226,16 @@ export default function NotificationsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <h4 className={`text-base font-semibold truncate ${
-                      notification.read ? 'text-gray-700' : 'text-gray-900'
+                      notification.read ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-white'
                     }`}>
                       {notification.title}
                     </h4>
-                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                    <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
                     </span>
                   </div>
                   <p className={`text-sm leading-relaxed mb-3 ${
-                    notification.read ? 'text-gray-500' : 'text-gray-600'
+                    notification.read ? 'text-gray-500 dark:text-gray-500' : 'text-gray-600'
                   }`}>
                     {notification.message}
                   </p>
@@ -248,7 +248,7 @@ export default function NotificationsPage() {
                       </span>
                     )}
                     {notification.read && (
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                         <MailOpen className="w-3.5 h-3.5" />
                         Read
                       </span>
@@ -262,7 +262,7 @@ export default function NotificationsPage() {
                       e.stopPropagation();
                       deleteNotification(notification.id);
                     }}
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete"
                   >
                     <Trash2 size={18} />

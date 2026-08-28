@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/context/AdminAuthContext';
-import { LayoutDashboard, Car, Package, CalendarCheck, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, Menu } from 'lucide-react';
+import { LayoutDashboard, Car, Package, CalendarCheck, CreditCard, Settings, LogOut, ChevronLeft, ChevronRight, Menu, Users, MessageSquare } from 'lucide-react';
 
 interface AdminSidebarProps {
   isCollapsed: boolean;
@@ -13,10 +13,12 @@ interface AdminSidebarProps {
 
 const navItems = [
   { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/admin/users', icon: Users, label: 'Users' },
   { href: '/admin/cars', icon: Car, label: 'Cars' },
   { href: '/admin/packages', icon: Package, label: 'Packages' },
   { href: '/admin/bookings', icon: CalendarCheck, label: 'Bookings' },
   { href: '/admin/payments', icon: CreditCard, label: 'Payments' },
+  { href: '/admin/reviews', icon: MessageSquare, label: 'Reviews' },
   { href: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -32,12 +34,12 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
 
   return (
     <aside 
-      className={`sticky top-0 h-screen bg-slate-900 text-white flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0 ${
+      className={`sticky top-0 h-screen bg-white dark:bg-[#111118] border-r border-gray-200 dark:border-[#2a2a3a] text-gray-900 dark:text-white flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0 ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Logo Section */}
-      <div className={`px-6 py-8 border-b border-slate-700 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+      <div className={`px-6 py-8 border-b border-gray-200 dark:border-[#2a2a3a] flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
         {!isCollapsed && (
           <div>
             <h1 className="text-2xl font-bold whitespace-nowrap overflow-hidden">
@@ -48,7 +50,7 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
         )}
         {isCollapsed && (
           <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">D</span>
+            <span className="text-gray-900 dark:text-white font-bold text-xl">D</span>
           </div>
         )}
       </div>
@@ -73,8 +75,8 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
               title={isCollapsed ? item.label : ''}
               className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-all ${
                 isActive
-                  ? 'bg-slate-700 text-orange-500 border-l-4 border-orange-500'
-                  : 'text-gray-400 hover:text-white hover:bg-slate-800'
+                  ? 'bg-orange-500/10 text-orange-500 border-l-4 border-orange-500'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-white hover:bg-white/5'
               } ${isCollapsed ? 'justify-center px-0' : ''}`}
             >
               <Icon size={20} className={isActive ? 'text-orange-500' : ''} />
@@ -85,17 +87,17 @@ export default function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProp
       </nav>
 
       {/* User Section */}
-      <div className="border-t border-slate-700 px-3 py-6 space-y-4">
+      <div className="border-t border-gray-200 dark:border-[#2a2a3a] px-3 py-6 space-y-4">
         {!isCollapsed && (
           <div className="px-2 overflow-hidden">
-            <p className="text-gray-400 text-sm">Logged in as</p>
-            <p className="text-white font-semibold truncate">{adminUser?.fullName}</p>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">Logged in as</p>
+            <p className="text-gray-900 dark:text-white font-semibold truncate">{adminUser?.fullName}</p>
           </div>
         )}
         <button
           onClick={handleLogout}
           title={isCollapsed ? 'Logout' : ''}
-          className={`w-full flex items-center gap-2 py-2 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-lg transition-all ${
+          className={`w-full flex items-center gap-2 py-2 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-lg transition-all cursor-pointer ${
             isCollapsed ? 'justify-center px-0' : 'px-4'
           }`}
         >

@@ -6,8 +6,9 @@ import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/collections';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import toast from 'react-hot-toast';
-import { Save, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Save, Eye, EyeOff, AlertCircle, MapPin, Loader2 } from 'lucide-react';
 import AdminHeader from '@/components/admin/AdminHeader';
+import MapLocationPicker from '@/components/booking/MapLocationPicker';
 
 interface CompanyInfo {
   companyName: string;
@@ -18,6 +19,8 @@ interface CompanyInfo {
   city: string;
   workingHours: string;
   websiteTagline: string;
+  mapEmbedUrl: string;
+  companyLocation?: { address: string; lat: number; lng: number } | null;
 }
 
 interface BookingConfig {
@@ -43,8 +46,11 @@ export default function SettingsPage() {
     city: '',
     workingHours: '8:00 AM - 10:00 PM',
     websiteTagline: '',
+    mapEmbedUrl: '',
+    companyLocation: null,
   });
   const [savingCompany, setSavingCompany] = useState(false);
+  const [showMapPicker, setShowMapPicker] = useState(false);
 
   // Booking Settings
   const [bookingConfig, setBookingConfig] = useState<BookingConfig>({
@@ -193,121 +199,125 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <AdminHeader title="Settings" />
-        <div className="max-w-4xl mx-auto px-8 py-8">
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0f]">
       <AdminHeader title="Settings" />
 
       <main className="max-w-4xl mx-auto px-8 py-8">
         {/* SECTION 1: COMPANY INFORMATION */}
-        <div className="bg-white rounded-lg shadow p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Company Information</h2>
+        <div className="bg-white dark:bg-[#1a1a24] rounded-lg shadow p-8 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Company Information</h2>
 
           <div className="space-y-6">
             {/* Company Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company Name</label>
               <input
                 type="text"
                 value={companyInfo.companyName}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, companyName: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
             </div>
 
             {/* Phone Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
               <input
                 type="tel"
                 value={companyInfo.phoneNumber}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, phoneNumber: e.target.value })}
                 placeholder=" "
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
             </div>
 
             {/* WhatsApp Number */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">WhatsApp Number</label>
               <input
                 type="tel"
                 value={companyInfo.whatsappNumber}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, whatsappNumber: e.target.value })}
                 placeholder=" "
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
               <input
                 type="email"
                 value={companyInfo.email}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, email: e.target.value })}
                 placeholder=" "
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
             </div>
 
             {/* Address */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Address</label>
               <input
                 type="text"
                 value={companyInfo.address}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, address: e.target.value })}
                 placeholder=" "
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
             </div>
 
             {/* City */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">City</label>
               <input
                 type="text"
                 value={companyInfo.city}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, city: e.target.value })}
                 placeholder=" "
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
+            </div>
+
+            {/* Location Picker */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
+              <div className="relative cursor-pointer">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <MapPin className="text-orange-500 w-5 h-5" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMapPicker(true)}
+                  className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full text-left truncate cursor-pointer"
+                >
+                  {companyInfo.companyLocation?.address || 'Choose Location...'}
+                </button>
+              </div>
             </div>
 
             {/* Working Hours */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Working Hours</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Working Hours</label>
               <input
                 type="text"
                 value={companyInfo.workingHours}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, workingHours: e.target.value })}
                 placeholder=" "
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
             </div>
 
             {/* Website Tagline */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Website Tagline</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Website Tagline</label>
               <textarea
                 value={companyInfo.websiteTagline}
                 onChange={(e) => setCompanyInfo({ ...companyInfo, websiteTagline: e.target.value })}
                 placeholder=" "
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full resize-none"
               />
             </div>
 
@@ -315,20 +325,29 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveCompany}
               disabled={savingCompany}
-              className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-70 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
             >
-              <Save size={18} />
-              Save Company Information
+              {savingCompany ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={18} />
+                  Save Company Information
+                </>
+              )}
             </button>
           </div>
         </div>
 
         {/* SECTION 2: JAZZCASH SETTINGS */}
-        <div className="bg-white rounded-lg shadow p-8 mb-8 border-l-4 border-purple-500">
+        <div className="bg-white dark:bg-[#1a1a24] rounded-lg shadow p-8 mb-8 border-l-4 border-purple-500">
           <div className="flex items-start gap-3 mb-6">
             <AlertCircle className="text-purple-600 flex-shrink-0 mt-1" size={24} />
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">JazzCash Settings</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">JazzCash Settings</h2>
               <p className="text-sm text-gray-600 mt-2">
                 These credentials are stored in your .env.local file and should never be shared.
               </p>
@@ -347,37 +366,37 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="space-y-4 bg-gray-50 p-6 rounded-lg">
+          <div className="space-y-4 bg-gray-50 dark:bg-[#0a0a0f] p-6 rounded-lg">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 NEXT_PUBLIC_JAZZCASH_MERCHANT_ID
               </label>
-              <p className="text-sm text-gray-600 font-mono bg-white p-3 rounded border border-gray-300">
+              <p className="text-sm text-gray-600 font-mono bg-white dark:bg-[#1a1a24] p-3 rounded border border-gray-200 dark:border-[#2a2a3a]">
                 {process.env.NEXT_PUBLIC_JAZZCASH_MERCHANT_ID || 'Not configured'}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 NEXT_PUBLIC_JAZZCASH_PASSWORD
               </label>
-              <p className="text-sm text-gray-600 font-mono bg-white p-3 rounded border border-gray-300">
+              <p className="text-sm text-gray-600 font-mono bg-white dark:bg-[#1a1a24] p-3 rounded border border-gray-200 dark:border-[#2a2a3a]">
                 {process.env.NEXT_PUBLIC_JAZZCASH_PASSWORD ? '••••••••' : 'Not configured'}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 NEXT_PUBLIC_JAZZCASH_INTEGRITY_SALT
               </label>
-              <p className="text-sm text-gray-600 font-mono bg-white p-3 rounded border border-gray-300">
+              <p className="text-sm text-gray-600 font-mono bg-white dark:bg-[#1a1a24] p-3 rounded border border-gray-200 dark:border-[#2a2a3a]">
                 {process.env.NEXT_PUBLIC_JAZZCASH_INTEGRITY_SALT ? '••••••••' : 'Not configured'}
               </p>
             </div>
 
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 mt-6">
               <p className="text-sm text-blue-800">
-                <strong>ℹ️ How to Update:</strong> Edit your <code className="bg-white px-2 py-1 rounded">.env.local</code> file
+                <strong>ℹ️ How to Update:</strong> Edit your <code className="bg-white dark:bg-[#1a1a24] px-2 py-1 rounded">.env.local</code> file
                 with the JazzCash credentials provided by their support team.
               </p>
             </div>
@@ -385,13 +404,13 @@ export default function SettingsPage() {
         </div>
 
         {/* SECTION 3: BOOKING SETTINGS */}
-        <div className="bg-white rounded-lg shadow p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Booking Settings</h2>
+        <div className="bg-white dark:bg-[#1a1a24] rounded-lg shadow p-8 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Booking Settings</h2>
 
           <div className="space-y-6">
             {/* Minimum Booking Days */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Booking Days</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Minimum Booking Days</label>
               <input
                 type="number"
                 min="1"
@@ -399,14 +418,14 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setBookingConfig({ ...bookingConfig, minimumDays: parseInt(e.target.value) || 1 })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
-              <p className="text-xs text-gray-500 mt-1">Customers must book for at least this many days</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Customers must book for at least this many days</p>
             </div>
 
             {/* Maximum Booking Days */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Maximum Booking Days</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Maximum Booking Days</label>
               <input
                 type="number"
                 min="1"
@@ -414,14 +433,14 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setBookingConfig({ ...bookingConfig, maximumDays: parseInt(e.target.value) || 30 })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
-              <p className="text-xs text-gray-500 mt-1">Maximum duration allowed for a single booking</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Maximum duration allowed for a single booking</p>
             </div>
 
             {/* Advance Booking Days */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Advance Booking Days Required</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Advance Booking Days Required</label>
               <input
                 type="number"
                 min="0"
@@ -429,9 +448,9 @@ export default function SettingsPage() {
                 onChange={(e) =>
                   setBookingConfig({ ...bookingConfig, advanceDays: parseInt(e.target.value) || 0 })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full"
               />
-              <p className="text-xs text-gray-500 mt-1">Days in advance required for booking (0 = same day allowed)</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Days in advance required for booking (0 = same day allowed)</p>
             </div>
 
             {/* Show Available Cars Only */}
@@ -445,7 +464,7 @@ export default function SettingsPage() {
                 }
                 className="w-4 h-4 text-orange-500 rounded focus:ring-2 focus:ring-orange-500"
               />
-              <label htmlFor="showAvailable" className="text-sm font-medium text-gray-700">
+              <label htmlFor="showAvailable" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Show only available cars
               </label>
             </div>
@@ -461,7 +480,7 @@ export default function SettingsPage() {
                 }
                 className="w-4 h-4 text-orange-500 rounded focus:ring-2 focus:ring-orange-500"
               />
-              <label htmlFor="autoConfirm" className="text-sm font-medium text-gray-700">
+              <label htmlFor="autoConfirm" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Automatically confirm bookings
               </label>
             </div>
@@ -470,51 +489,60 @@ export default function SettingsPage() {
             <button
               onClick={handleSaveBooking}
               disabled={savingBooking}
-              className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-70 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
             >
-              <Save size={18} />
-              Save Booking Settings
+              {savingBooking ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={18} />
+                  Save Booking Settings
+                </>
+              )}
             </button>
           </div>
         </div>
 
         {/* SECTION 4: ADMIN ACCOUNT */}
-        <div className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Admin Account</h2>
+        <div className="bg-white dark:bg-[#1a1a24] rounded-lg shadow p-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Admin Account</h2>
 
           <div className="space-y-6">
             {/* Current Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Current Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Email Address</label>
               <input
                 type="email"
                 value={adminEmail}
                 disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+                className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 outline-none w-full disabled:opacity-50 cursor-not-allowed"
               />
-              <p className="text-xs text-gray-500 mt-1">Email cannot be changed directly. Contact support if needed.</p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Email cannot be changed directly. Contact support if needed.</p>
             </div>
 
             {/* Change Password Form */}
-            <div className="pt-6 border-t border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+            <div className="pt-6 border-t border-gray-200 dark:border-[#2a2a3a]">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Change Password</h3>
 
               <form onSubmit={handleChangePassword} className="space-y-6">
                 {/* Current Password */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Password</label>
                   <div className="relative">
                     <input
                       type={showPasswords.current ? 'text' : 'password'}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="Enter your current password"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                      className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPasswords({ ...showPasswords, current: !showPasswords.current })}
-                      className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-3 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300"
                     >
                       {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -523,19 +551,19 @@ export default function SettingsPage() {
 
                 {/* New Password */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">New Password</label>
                   <div className="relative">
                     <input
                       type={showPasswords.new ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter your new password (min. 6 characters)"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                      className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPasswords({ ...showPasswords, new: !showPasswords.new })}
-                      className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-3 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300"
                     >
                       {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -544,19 +572,19 @@ export default function SettingsPage() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm New Password</label>
                   <div className="relative">
                     <input
                       type={showPasswords.confirm ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your new password"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-10"
+                      className="bg-white dark:bg-[#0a0a0f] text-gray-900 dark:text-white border border-gray-300 dark:border-[#2a2a3a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-orange-500 outline-none w-full pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })}
-                      className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-3 text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:text-gray-300"
                     >
                       {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -567,16 +595,36 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={changingPassword}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  <Save size={18} />
-                  Update Password
+                  {changingPassword ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} />
+                      Update Password
+                    </>
+                  )}
                 </button>
               </form>
             </div>
           </div>
         </div>
       </main>
+
+      {showMapPicker && (
+        <MapLocationPicker
+          title="Select Company Location"
+          onClose={() => setShowMapPicker(false)}
+          onSelect={(location) => {
+            setCompanyInfo({ ...companyInfo, companyLocation: location });
+            setShowMapPicker(false);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -54,7 +54,7 @@ export default function PaymentMethodSelector({
         </div>
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a1a24] hover:bg-[#2a2a3a] text-gray-300 font-medium rounded-lg text-sm transition-colors border border-[#2a2a3a]"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a1a24] hover:bg-[#2a2a3a] hover:text-orange-500 text-gray-300 font-medium rounded-lg text-sm transition-colors border border-[#2a2a3a] cursor-pointer"
         >
           <ChevronLeft size={16} />
           Go Back
@@ -66,11 +66,11 @@ export default function PaymentMethodSelector({
           onClick={handleSelectPaddle}
           disabled={loading}
           type="button"
-          className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
+          className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left hover:border-orange-500 hover:-translate-y-1 ${
             selectedMethod === 'paddle'
               ? 'border-orange-500 bg-orange-500/5'
-              : 'border-[#2a2a3a] bg-[#1a1a24] hover:border-[#3a3a4a] hover:bg-[#2a2a3a]'
-          } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              : 'border-[#2a2a3a] bg-[#1a1a24] hover:bg-[#2a2a3a]'
+          } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-default'}`}
         >
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-xl transition-colors ${
@@ -84,7 +84,7 @@ export default function PaymentMethodSelector({
               }`}>Card / Apple Pay / Google Pay</h3>
               <p className="text-xs text-gray-500">Pay {usdLabel} securely via Paddle (sandbox)</p>
             </div>
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 cursor-pointer hover:border-orange-500 ${
               selectedMethod === 'paddle' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
             }`}>
               {selectedMethod === 'paddle' && (
@@ -98,11 +98,11 @@ export default function PaymentMethodSelector({
           onClick={handleSelectCash}
           disabled={loading}
           type="button"
-          className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
+          className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left hover:border-orange-500 hover:-translate-y-1 ${
             selectedMethod === 'cash'
               ? 'border-orange-500 bg-orange-500/5'
-              : 'border-[#2a2a3a] bg-[#1a1a24] hover:border-[#3a3a4a] hover:bg-[#2a2a3a]'
-          } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              : 'border-[#2a2a3a] bg-[#1a1a24] hover:bg-[#2a2a3a]'
+          } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-default'}`}
         >
           <div className="flex items-center gap-4">
             <div className={`p-3 rounded-xl transition-colors ${
@@ -116,7 +116,7 @@ export default function PaymentMethodSelector({
               }`}>Cash on Delivery</h3>
               <p className="text-xs text-gray-500">Pay directly when you receive the vehicle</p>
             </div>
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 cursor-pointer hover:border-orange-500 ${
               selectedMethod === 'cash' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
             }`}>
               {selectedMethod === 'cash' && (
@@ -131,11 +131,11 @@ export default function PaymentMethodSelector({
             onClick={handleSelectJazzCash}
             disabled={loading}
             type="button"
-            className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left ${
+            className={`w-full p-5 rounded-2xl border-2 transition-all duration-300 text-left hover:border-orange-500 hover:-translate-y-1 ${
               selectedMethod === 'jazzcash'
                 ? 'border-orange-500 bg-orange-500/5'
-                : 'border-[#2a2a3a] bg-[#1a1a24] hover:border-[#3a3a4a] hover:bg-[#2a2a3a]'
-            } ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                : 'border-[#2a2a3a] bg-[#1a1a24] hover:bg-[#2a2a3a]'
+            } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-xl transition-colors ${
@@ -149,7 +149,7 @@ export default function PaymentMethodSelector({
                 }`}>JazzCash</h3>
                 <p className="text-xs text-gray-500">Pay securely via digital wallet</p>
               </div>
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 ${
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-colors flex-shrink-0 cursor-pointer hover:border-orange-500 ${
                 selectedMethod === 'jazzcash' ? 'border-orange-500 bg-orange-500' : 'border-gray-500 bg-transparent'
               }`}>
                 {selectedMethod === 'jazzcash' && (
@@ -162,7 +162,7 @@ export default function PaymentMethodSelector({
       </div>
 
       <div className="pt-6 mt-6 border-t border-[#2a2a3a]">
-        <div className="bg-[#1a1a24] border border-[#2a2a3a] rounded-xl p-6 text-center mb-6">
+        <div className="bg-[#1a1a24] border border-[#2a2a3a] hover:border-orange-500 hover:-translate-y-1 transition-all duration-300 rounded-xl p-6 text-center mb-6">
           <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 font-semibold">Total to Pay</p>
           <p className="text-4xl font-bold text-orange-500">PKR {amount.toLocaleString()}</p>
           <p className="text-sm text-gray-400 mt-2">Card charge ≈ {usdLabel} (280 PKR = $1)</p>
@@ -172,7 +172,7 @@ export default function PaymentMethodSelector({
           <button
             onClick={handleConfirmPaddle}
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? 'Opening checkout...' : `Pay ${usdLabel} by Card`}
           </button>
@@ -182,7 +182,7 @@ export default function PaymentMethodSelector({
           <button
             onClick={handleConfirmCash}
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? 'Confirming...' : 'Confirm Cash Booking'}
           </button>
@@ -192,7 +192,7 @@ export default function PaymentMethodSelector({
           <button
             onClick={handleConfirmJazzCash}
             disabled={loading}
-            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20"
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? 'Processing...' : `Pay PKR ${amount.toLocaleString()}`}
           </button>

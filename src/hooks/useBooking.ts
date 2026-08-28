@@ -1,17 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { collection, addDoc, serverTimestamp, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { collection, addDoc, updateDoc, doc, getDoc, serverTimestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/collections';
-import { Booking } from '@/types';
+import { Booking, LocationData } from '@/types';
 
 export interface BookingFormData {
   customerName: string;
   customerPhone: string;
   customerEmail: string;
-  pickupLocation: string;
-  dropoffLocation: string;
+  pickupLocation: string | LocationData;
+  dropoffLocation: string | LocationData;
   notes?: string;
 }
 
@@ -25,8 +25,8 @@ export interface BookingData {
   endDate: Date;
   totalDays: number;
   totalAmount: number;
-  pickupLocation: string;
-  dropoffLocation: string;
+  pickupLocation: string | LocationData;
+  dropoffLocation: string | LocationData;
   notes?: string;
   customerName: string;
   customerPhone: string;
@@ -53,6 +53,7 @@ export function useBooking(): UseBookingReturn {
       setError(null);
 
       const bookingData = {
+        customerId: auth.currentUser ? auth.currentUser.uid : null,
         customerName: data.customerName,
         customerPhone: data.customerPhone,
         customerEmail: data.customerEmail,

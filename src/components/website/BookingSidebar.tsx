@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { differenceInDays } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { auth } from '@/lib/firebase';
+import { Calendar } from 'lucide-react';
 
 interface BookingSidebarProps {
   carId?: string;
@@ -49,6 +51,12 @@ export default function BookingSidebar({ carId, carName, carPrice, packageId, pa
       return;
     }
 
+    if (!auth.currentUser) {
+      toast.error('Please log in to make a booking');
+      router.push(`/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -72,41 +80,51 @@ export default function BookingSidebar({ carId, carName, carPrice, packageId, pa
   // Get minimum date (today)
   const today = new Date().toISOString().split('T')[0];
 
-  const inputClasses = "w-full px-4 py-3 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all text-sm";
+  const inputClasses = "w-full px-4 py-3 pl-4 pr-10 bg-[#1a1a24] border border-[#2a2a3a] rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all text-sm cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full z-10 relative bg-transparent";
 
   return (
-    <div className="card-dark p-6 sticky top-28">
+    <div className="card-dark p-4 sm:p-6 sticky top-28">
       <h3 className="text-xl font-bold text-white mb-6 pb-4 border-b border-[#2a2a3a]">
         Book This {packageId ? 'Package' : 'Car'}
       </h3>
 
       <div className="space-y-5">
         {/* Start Date */}
-        <div>
-          <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+        <div className="relative group/date1">
+          <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider relative z-20">
             Pickup Date
           </label>
-          <input
-            type="date"
-            min={today}
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className={inputClasses}
-          />
+          <div className="relative">
+            <input
+              type="date"
+              min={today}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className={inputClasses}
+            />
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-hover/date1:text-orange-500 transition-colors pointer-events-none z-0">
+              <Calendar size={18} />
+            </div>
+          </div>
         </div>
 
         {/* End Date */}
-        <div>
-          <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider">
+        <div className="relative group/date2">
+          <label className="block text-xs font-medium text-gray-400 mb-2 uppercase tracking-wider relative z-20">
             Return Date
           </label>
-          <input
-            type="date"
-            min={startDate || today}
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className={inputClasses}
-          />
+          <div className="relative">
+            <input
+              type="date"
+              min={startDate || today}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className={inputClasses}
+            />
+            <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-hover/date2:text-orange-500 transition-colors pointer-events-none z-0">
+              <Calendar size={18} />
+            </div>
+          </div>
         </div>
 
         {/* Price Breakdown */}
@@ -132,7 +150,7 @@ export default function BookingSidebar({ carId, carName, carPrice, packageId, pa
         <button
           onClick={handleBooking}
           disabled={totalDays === 0}
-          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 mt-4 hover:shadow-lg hover:shadow-orange-500/20"
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-[#2a2a3a] disabled:text-gray-600 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 mt-4 hover:shadow-lg hover:shadow-orange-500/20 cursor-pointer disabled:cursor-not-allowed"
         >
           Proceed to Checkout
         </button>

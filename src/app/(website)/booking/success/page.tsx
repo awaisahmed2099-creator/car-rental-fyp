@@ -4,11 +4,11 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/collections';
 import { Booking } from '@/types';
-import { CheckCircle2, Download, MessageCircle, MapPin, Calendar, Clock, Car } from 'lucide-react';
+import { CheckCircle2, Download, MessageCircle, MapPin, Calendar, Clock, Car, Star } from 'lucide-react';
 import { generateBookingReceipt } from '@/lib/pdfGenerator';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -19,6 +19,38 @@ function BookingSuccessContent() {
   const router = useRouter();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Review Modal State
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [commentText, setCommentText] = useState('');
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  const handleSubmitReview = async () => {
+    if (!booking) return;
+    const bookingId = searchParams.get('bookingId');
+    
+    setIsSubmittingReview(true);
+    try {
+      await addDoc(collection(db, 'testimonials'), {
+        name: booking.customerName || 'Guest',
+        rating: selectedRating,
+        comment: commentText,
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        bookingId: bookingId || ''
+      });
+      toast.success('Thank you! Your review has been submitted for approval.');
+      setIsReviewModalOpen(false);
+      setCommentText('');
+      setSelectedRating(0);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('Failed to submit review. Please try again.');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
 
   useEffect(() => {
     const bookingId = searchParams.get('bookingId');
@@ -47,6 +79,7 @@ function BookingSuccessContent() {
             carImage: data.carImage,
             packageId: data.packageId,
             packageName: data.packageName,
+            packageDetails: data.packageDetails,
             startDate: data.startDate?.toDate?.() || new Date(data.startDate),
             endDate: data.endDate?.toDate?.() || new Date(data.endDate),
             totalDays: data.totalDays,
@@ -187,6 +220,15 @@ function BookingSuccessContent() {
                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Vehicle</p>
                     <p className="font-bold text-white text-lg">{booking.carName}</p>
                     {booking.packageName && <p className="text-sm text-orange-500">{booking.packageName}</p>}
+                    {booking.packageDetails && (
+                      <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                        {booking.packageDetails.split(' and ').map((detail, idx) => (
+                          <span key={idx} className="inline-flex items-center px-2 py-1 rounded text-xs font-semibold bg-orange-500/10 text-orange-500 border border-orange-500/30">
+                            {detail}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -214,17 +256,25 @@ function BookingSuccessContent() {
                     <MapPin size={18} className="text-gray-400 mt-1" />
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Pickup Location</p>
-                      <p className="font-medium text-white">{booking.pickupLocation}</p>
+                      <p className="font-medium text-white">{typeof booking.pickupLocation === 'string' ? booking.pickupLocation : booking.pickupLocation?.address}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 bg-[#1a1a24] p-4 rounded-xl border border-[#2a2a3a]">
                     <MapPin size={18} className="text-gray-400 mt-1" />
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Drop-off Location</p>
-                      <p className="font-medium text-white">{booking.dropoffLocation}</p>
+                      <p className="font-medium text-white">{typeof booking.dropoffLocation === 'string' ? booking.dropoffLocation : booking.dropoffLocation?.address}</p>
                     </div>
                   </div>
                 </div>
+
+                {/* Special Requests */}
+                {booking.notes && booking.notes.trim() !== '' && (
+                  <div className="bg-[#1a1a24] p-4 rounded-xl border border-gray-800 text-gray-300">
+                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Special Requests</p>
+                    <p className="font-medium text-white text-sm">{booking.notes}</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -283,26 +333,34 @@ function BookingSuccessContent() {
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-[#2a2a3a] pt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border-t border-[#2a2a3a] pt-8">
               <button
                 onClick={handleDownloadReceipt}
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#1a1a24] hover:bg-[#2a2a3a] border border-[#2a2a3a] hover:border-[#3a3a4a] text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 bg-[#1a1a24] hover:bg-orange-500 border border-[#2a2a3a] hover:border-orange-500 hover:text-white text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 text-sm group cursor-pointer"
               >
-                <Download size={18} />
-                Download Receipt
+                <Download size={18} className="text-orange-500 group-hover:text-white transition-colors duration-200" />
+                Receipt
               </button>
 
               <button
                 onClick={handleWhatsAppContact}
-                className="w-full inline-flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 text-green-500 font-semibold py-3 px-4 rounded-xl transition-all duration-300"
+                className="w-full inline-flex items-center justify-center gap-2 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 text-green-500 font-semibold py-3 px-4 rounded-xl transition-all duration-300 text-sm cursor-pointer"
               >
                 <MessageCircle size={18} />
-                WhatsApp Us
+                WhatsApp
+              </button>
+
+              <button
+                onClick={() => setIsReviewModalOpen(true)}
+                className="w-full inline-flex items-center justify-center gap-2 bg-transparent hover:bg-orange-500 border border-[#2a2a3a] hover:border-orange-500 hover:text-white text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 text-sm group cursor-pointer"
+              >
+                <Star size={18} className="text-orange-500 group-hover:text-white transition-colors duration-200" />
+                Submit Review
               </button>
 
               <Link
                 href="/cars"
-                className="w-full inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors shadow-lg shadow-orange-500/20"
+                className="w-full inline-flex items-center justify-center gap-2 bg-transparent hover:bg-orange-500 border border-[#2a2a3a] hover:border-orange-500 hover:text-white text-white font-semibold py-3 px-4 rounded-xl transition-colors duration-200 text-sm group"
               >
                 Browse Cars
               </Link>
@@ -320,6 +378,64 @@ function BookingSuccessContent() {
           </p>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {isReviewModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#111118] border border-[#2a2a3a] rounded-2xl w-full max-w-md p-6 relative">
+            <h3 className="text-xl font-bold text-white mb-4">Rate Your Experience</h3>
+            <p className="text-gray-400 text-sm mb-6">
+              How was your experience with DriveEase? Let us know!
+            </p>
+
+            {/* Stars */}
+            <div className="flex justify-center gap-2 mb-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setSelectedRating(star)}
+                  className="focus:outline-none transition-transform hover:scale-110 cursor-pointer group"
+                >
+                  <Star
+                    size={32}
+                    className={`${
+                      star <= selectedRating
+                        ? 'fill-orange-500 text-orange-500'
+                        : 'fill-transparent text-gray-600'
+                    } transition-colors group-hover:fill-orange-500 group-hover:text-orange-500`}
+                  />
+                </button>
+              ))}
+            </div>
+
+            {/* Comment */}
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Tell us about your trip... (optional)"
+              className="w-full bg-[#0a0a0f] border border-[#2a2a3a] rounded-xl p-3 text-white placeholder:text-gray-600 focus:outline-none focus:border-orange-500/50 resize-none h-24 mb-6"
+            />
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsReviewModalOpen(false)}
+                className="flex-1 py-3 bg-[#1a1a24] hover:bg-red-500 hover:text-white hover:border-red-500 text-white font-medium rounded-xl transition-colors border border-[#2a2a3a] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitReview}
+                disabled={isSubmittingReview || selectedRating === 0}
+                className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {isSubmittingReview ? 'Submitting...' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

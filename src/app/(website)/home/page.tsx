@@ -19,7 +19,7 @@ import {
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/collections';
 import { Car as CarType, Package as PackageType } from '@/types';
@@ -68,8 +68,10 @@ export default function HomePage() {
           .map(doc => ({
             ...doc.data(),
             carId: doc.id,
+            createdAt: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt || Date.now())
           }))
-          .slice(0, 6) as CarType[];
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+          .slice(0, 3) as CarType[];
         setCars(carsData);
       } catch (error) {
         console.error('Error fetching cars:', error);
@@ -94,8 +96,10 @@ export default function HomePage() {
           .map(doc => ({
             ...doc.data(),
             packageId: doc.id,
+            createdAt: doc.data().createdAt?.toDate?.() || new Date(doc.data().createdAt || Date.now())
           }))
           .filter((pkg: any) => pkg.popular === true)
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
           .slice(0, 3) as PackageType[];
         setPackages(packagesData);
       } catch (error) {
@@ -158,23 +162,50 @@ export default function HomePage() {
     },
   ];
 
-  const testimonials = [
+  const [reviews, setReviews] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const q = query(
+          collection(db, 'testimonials'),
+          where('status', '==', 'approved'),
+          limit(3)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+          const fetchedReviews = snapshot.docs.map(doc => doc.data());
+          setReviews(fetchedReviews);
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      }
+    };
+    fetchTestimonials();
+  }, []);
+
+  const dummyTestimonials = [
     {
       name: 'Ahmed Hassan',
       initials: 'AH',
       text: '"Excellent service! The car was clean, well-maintained, and the booking process was hassle-free. Highly recommended!"',
+      rating: 5
     },
     {
       name: 'Samina Farooq',
       initials: 'SF',
       text: '"Best car rental experience I\'ve had. The staff was friendly, helpful, and the service was professional throughout."',
+      rating: 5
     },
     {
       name: 'Muhammad Khan',
       initials: 'MK',
       text: '"Great prices, great cars, and great service. I will definitely book with DriveEase again for my next trip!"',
+      rating: 5
     },
   ];
+
+  const displayTestimonials = reviews.length > 0 ? reviews : dummyTestimonials;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -227,7 +258,7 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/packages"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 hover:border-white/40 hover:bg-white/5 text-white font-semibold rounded-full transition-all duration-300"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 hover:bg-orange-500 hover:border-orange-500 hover:text-white text-white font-semibold rounded-full transition-colors cursor-pointer duration-300"
                 >
                   View Packages <ArrowRight size={18} />
                 </Link>
@@ -246,7 +277,7 @@ export default function HomePage() {
       <div className="h-20 bg-transparent"></div>
 
       {/* ============ SECTION 2: HOW IT WORKS ============ */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 gradient-mesh">
+      <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 gradient-mesh">
         <div className="max-w-7xl mx-auto">
           <SectionTitle
             label="How It Works"
@@ -265,7 +296,7 @@ export default function HomePage() {
               const Icon = step.icon;
               return (
                 <motion.div key={idx} variants={itemVariants} className="relative">
-                  <div className="card-dark p-8 h-full text-center group hover-lift">
+                  <div className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-8 h-full text-center group hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300">
                     {/* Step number */}
                     <div className="text-6xl font-bold text-white/[0.03] absolute top-4 right-6">
                       {step.number}
@@ -308,26 +339,26 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto pb-4 -mx-4 px-4">
-            <div className="flex gap-6 min-w-max">
+          <div className="pt-4 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {loadingCars ? (
                 <>
-                  <div className="w-[280px] flex-shrink-0"><SkeletonCard variant="car" /></div>
-                  <div className="w-[280px] flex-shrink-0"><SkeletonCard variant="car" /></div>
-                  <div className="w-[280px] flex-shrink-0"><SkeletonCard variant="car" /></div>
+                  <div className="w-full flex items-stretch"><SkeletonCard variant="car" /></div>
+                  <div className="w-full flex items-stretch hidden sm:block"><SkeletonCard variant="car" /></div>
+                  <div className="w-full flex items-stretch hidden lg:block"><SkeletonCard variant="car" /></div>
                 </>
               ) : cars.length > 0 ? (
                 cars.map((car, idx) => (
                   <motion.div 
                     key={car.carId} 
                     variants={itemVariants} 
-                    className="w-[280px] flex-shrink-0 flex items-stretch"
+                    className="w-full flex items-stretch"
                   >
                     <CarCard car={car} priority={idx < 3} />
                   </motion.div>
                 ))
               ) : (
-                <div className="w-full text-center py-12">
+                <div className="w-full col-span-full text-center py-12">
                   <p className="text-gray-500 text-lg">No cars available at the moment</p>
                 </div>
               )}
@@ -349,36 +380,55 @@ export default function HomePage() {
       {/* ============ SECTION 4: FEATURED PACKAGES ============ */}
       <section id="packages" className="py-24 px-4 sm:px-6 lg:px-8 gradient-mesh">
         <div className="max-w-7xl mx-auto">
-          <SectionTitle
-            label="Special Offers"
-            title="Exclusive Packages"
-            subtitle="Curated rental packages designed for your convenience"
-          />
+          <div className="flex items-end justify-between mb-14">
+            <SectionTitle
+              label="Special Offers"
+              title="Exclusive Packages"
+              subtitle="Curated rental packages designed for your convenience"
+              centered={false}
+            />
+            <Link
+              href="/packages"
+              className="hidden sm:inline-flex items-center gap-2 text-orange-500 hover:text-orange-400 font-medium text-sm transition-colors"
+            >
+              View All <ChevronRight size={16} />
+            </Link>
+          </div>
 
-          <div className="overflow-x-auto pb-4 -mx-4 px-4">
-            <div className="flex gap-6 min-w-max">
+          <div className="pt-4 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {loadingPackages ? (
                 <>
-                  <div className="w-[300px] md:w-[380px] flex-shrink-0"><SkeletonCard variant="package" /></div>
-                  <div className="w-[300px] md:w-[380px] flex-shrink-0"><SkeletonCard variant="package" /></div>
-                  <div className="w-[300px] md:w-[380px] flex-shrink-0"><SkeletonCard variant="package" /></div>
+                  <div className="w-full flex items-stretch"><SkeletonCard variant="package" /></div>
+                  <div className="w-full flex items-stretch hidden sm:block"><SkeletonCard variant="package" /></div>
+                  <div className="w-full flex items-stretch hidden lg:block"><SkeletonCard variant="package" /></div>
                 </>
               ) : packages.length > 0 ? (
                 packages.map((pkg, idx) => (
                   <motion.div 
                     key={pkg.packageId} 
                     variants={itemVariants} 
-                    className="w-[300px] md:w-[380px] flex-shrink-0 flex items-stretch"
+                    className="w-full flex items-stretch"
                   >
                     <PackageCard pkg={pkg} priority={idx < 2} />
                   </motion.div>
                 ))
               ) : (
-                <div className="w-full text-center py-12">
+                <div className="w-full col-span-full text-center py-12">
                   <p className="text-gray-500 text-lg">No packages available at the moment</p>
                 </div>
               )}
             </div>
+          </div>
+          
+          {/* Mobile view all link */}
+          <div className="sm:hidden mt-6 text-center">
+            <Link
+              href="/packages"
+              className="inline-flex items-center gap-2 text-orange-500 hover:text-orange-400 font-medium text-sm"
+            >
+              View All Packages <ChevronRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
@@ -405,7 +455,7 @@ export default function HomePage() {
                 <motion.div
                   key={idx}
                   variants={itemVariants}
-                  className="card-dark p-6 text-center group hover-lift"
+                  className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-6 text-center group hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300"
                 >
                   <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 mb-5 mx-auto group-hover:bg-orange-500/20 transition-colors duration-300">
                     <Icon className="w-6 h-6 text-orange-500" />
@@ -420,7 +470,7 @@ export default function HomePage() {
       </section>
 
       {/* ============ SECTION 6: TESTIMONIALS ============ */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 gradient-mesh">
+      <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 gradient-mesh">
         <div className="max-w-7xl mx-auto">
           <SectionTitle
             label="Testimonials"
@@ -435,38 +485,45 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {testimonials.map((t, idx) => (
-              <motion.div key={idx} variants={itemVariants} className="card-dark p-8 hover-lift">
-                {/* Stars */}
-                <div className="flex gap-1 mb-5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className="fill-orange-500 text-orange-500" />
-                  ))}
-                </div>
+            {displayTestimonials.map((t, idx) => {
+              const customerName = t.name || t.customerName || 'Anonymous';
+              const rating = t.rating || 5;
+              const quote = t.comment || t.text;
+              const initials = t.initials || customerName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
 
-                {/* Quote */}
-                <p className="text-gray-400 text-sm mb-6 leading-relaxed italic">
-                  {t.text}
-                </p>
+              return (
+                <motion.div key={idx} variants={itemVariants} className="bg-[#111118] border border-[#2a2a3a] rounded-2xl p-8 hover:-translate-y-2 hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300">
+                  {/* Stars */}
+                  <div className="flex gap-1 mb-5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={14} className={i < rating ? "fill-orange-500 text-orange-500" : "fill-gray-600 text-gray-600"} />
+                    ))}
+                  </div>
 
-                {/* Author */}
-                <div className="flex items-center gap-3 pt-4 border-t border-[#2a2a3a]">
-                  <div className="w-10 h-10 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-xs font-bold">
-                    {t.initials}
+                  {/* Quote */}
+                  <p className="text-gray-400 text-sm mb-6 leading-relaxed italic">
+                    {quote}
+                  </p>
+
+                  {/* Author */}
+                  <div className="flex items-center gap-3 pt-4 border-t border-[#2a2a3a]">
+                    <div className="w-10 h-10 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center text-xs font-bold">
+                      {initials}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white text-sm">{customerName}</p>
+                      <p className="text-xs text-gray-600">Verified Customer</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-white text-sm">{t.name}</p>
-                    <p className="text-xs text-gray-600">Verified Customer</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>
 
       {/* ============ SECTION 7: CTA BANNER ============ */}
-      <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden flex items-center justify-center min-h-[500px]">
+      <section id="contact" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden flex items-center justify-center min-h-[500px]">
         {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -494,7 +551,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 hover:border-white/40 hover:bg-white/5 text-white font-semibold rounded-full transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-white/20 hover:bg-orange-500 hover:border-orange-500 hover:text-white transition-colors duration-300 cursor-pointer text-white font-semibold rounded-full"
             >
               <MessageSquare size={18} />
               Contact Us

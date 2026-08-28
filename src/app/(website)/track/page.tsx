@@ -122,7 +122,7 @@ export default function TrackPage() {
                 <div className="flex items-center gap-4 mb-6">
                   {booking.carInfo?.image && (
                     <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-[#2a2a3a]">
-                      <Image src={booking.carInfo.image} alt="Vehicle" fill className="object-cover" />
+                      <Image src={booking.carInfo.image} alt="Vehicle" fill className="object-cover" unoptimized />
                     </div>
                   )}
                   <div>

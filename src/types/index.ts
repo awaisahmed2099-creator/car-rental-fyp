@@ -3,7 +3,7 @@ export interface Car {
   name: string;
   brand: string;
   model: string;
-  year: number;
+  year?: number;
   price: number; // per day in PKR
   images: string[];
   category: 'sedan' | 'suv' | 'luxury' | 'van' | 'coaster';
@@ -38,17 +38,33 @@ export interface Package {
   createdAt: Date;
 }
 
+export interface LocationData {
+  address: string;
+  lat: number;
+  lng: number;
+}
+
 export interface Booking {
   bookingId: string;
   customerName: string;
+  name?: string;
+  userName?: string;
   customerPhone: string;
+  phone?: string;
+  phoneNumber?: string;
   customerEmail: string;
+  email?: string;
+  userEmail?: string;
   customerId?: string; // optional, if logged in
   carId: string;
   carName: string;
   carImage: string;
+  carModel?: string; // optional
   packageId?: string; // optional
   packageName?: string; // optional
+  packageDescription?: string; // optional
+  packageDetails?: string; // optional (e.g., "5 Prado and 3 Civic")
+  tag?: string; // optional (e.g., "popular", "luxury")
   startDate: Date;
   endDate: Date;
   totalDays: number;
@@ -58,8 +74,8 @@ export interface Booking {
   txnRefNo?: string; // JazzCash / Paddle transaction ID
   paddleTransactionId?: string;
   bookingStatus: 'confirmed' | 'active' | 'completed' | 'cancelled';
-  pickupLocation: string;
-  dropoffLocation: string;
+  pickupLocation: string | LocationData;
+  dropoffLocation: string | LocationData;
   notes?: string;
   createdAt: Date;
 }
