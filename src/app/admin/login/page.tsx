@@ -238,7 +238,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-orange-600 hover:bg-orange-700 text-white w-full rounded-lg py-3 flex justify-center items-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed font-medium mt-6"
+              className="bg-orange-600 hover:bg-orange-700 text-white w-full rounded-lg py-3 flex justify-center items-center gap-2 transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed font-medium mt-6"
             >
               {isLoading ? (
                 <><Loader2 size={18} className="animate-spin" /> Authenticating...</>
